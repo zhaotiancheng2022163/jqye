@@ -1,0 +1,8 @@
+这是一个用相对标准的方法来写的一个STL常用数据结构容器项目.已经做过测试.
+
+构建项目
+. ./build.sh
+
+或者
+cmake -S . -B build
+cmake --build build  -j$(nproc)

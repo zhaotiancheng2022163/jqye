@@ -1,0 +1,12 @@
+这是grep的一个简单实现
+
+使用:
+$ ./main include grep.c
+grep.c -#include <stdio.h>
+grep.c -#include <string.h>
+grep.c -#include <stdlib.h>
+
+构建:
+make
+清理:
+make clean

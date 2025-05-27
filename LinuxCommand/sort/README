@@ -1,0 +1,17 @@
+这是一个仿照sort而写的一个程序, 先输入, 输入Ctrl+D之后输出结果
+
+使用方法:
+$ ./main
+this is a test
+begin
+end
+-----------------------
+begin
+end
+this is a test
+
+构建:
+make
+清理:
+make clean
+
