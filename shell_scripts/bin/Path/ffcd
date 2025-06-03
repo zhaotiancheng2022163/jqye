@@ -1,0 +1,18 @@
+#!/bin/bash
+# find a file and copy its *nix direcotry (without filename) into clipboard
+# cd into that directory at the same time
+function ffcd()
+ {
+     local cli
+     cli=$(baseff file "$*")
+     if [ -z "${cli}" ]; then
+         echo "Nothing found!"
+     else
+         local dir
+         dir=$(dirname "${cli}")
+         cd "${dir}" && echo "${dir}"
+         echo -n "${cli}" | pclip
+     fi
+}
+
+ffcd "$@"

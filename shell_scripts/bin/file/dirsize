@@ -1,0 +1,12 @@
+#!/bin/bash
+# finds directory sizes and lists them for the current directory
+dirsize ()
+{
+    du -shx * .[a-zA-Z0-9_]* 2> /dev/null | \
+    command egrep '^ *[0-9.]*[MG]' | sort -n > /tmp/list
+    command egrep '^ *[0-9.]*M' /tmp/list
+    command egrep '^ *[0-9.]*G' /tmp/list
+    rm -rf /tmp/list
+}
+
+dirsize 

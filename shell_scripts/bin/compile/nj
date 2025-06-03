@@ -1,0 +1,10 @@
+#!/bin/bash
+function nj() {
+    if [ "$OS_NAME" = "Darwin" ]; then
+        ninja -j"$(sysctl -n hw.ncpu)"
+    else
+        ninja -j"$(nproc)"
+    fi
+}
+
+nj

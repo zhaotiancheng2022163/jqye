@@ -1,0 +1,15 @@
+# apt 自定义脚本使用的函数, 它决定了支持fzf多选
+
+# ============================== apt ==============================
+
+apt_fzf(){
+fzf --height 60% --layout reverse  --no-border \
+    --no-preview --color 'hl:#00ff00,bg+:#171d24,fg+:#40ba52,hl+:#00ff00' \
+    --prompt '> ' \
+    --multi \
+    --bind 'ctrl-l:clear-query' \
+    --bind 'ctrl-a:transform:[[ ! $FZF_PROMPT =~ All ]] &&
+            echo "change-prompt(All> )+select-all" ||
+            echo "change-prompt(> )+deselect-all"'
+    # --multi --bind 'ctrl-a:select-all' --bind 'ctrl-d:deselect-all'
+}

@@ -1,0 +1,8 @@
+#!/bin/sh
+[ -z "$MYEMACSCLIENT" ] && MYEMACSCLIENT="emacs"
+# $1=$BASE, $2=$LOCAL, $3=$REMOTE, $4=$MERGED
+if [ "$MYEMACSCLIENT" = "emacs" ]; then
+    $MYEMACSCLIENT -nw -Q --eval "(setq startup-now t)" -l "$HOME/.emacs.d/init.el" --eval "(progn (setq ediff-quit-hook 'kill-emacs) (if (file-readable-p \"$3\") (ediff-merge-files-with-ancestor \"$1\" \"$2\" \"$3\" nil \"$4\") (ediff-merge-files \"$2\" \"$3\" nil \"$4\")))"
+else
+    $MYEMACSCLIENT -nw --eval "(progn (setq ediff-quit-hook 'kill-emacs) (if (file-readable-p \"$3\") (ediff-merge-files-with-ancestor \"$1\" \"$2\" \"$3\" nil \"$4\") (ediff-merge-files \"$2\" \"$3\" nil \"$4\")))"
+fi

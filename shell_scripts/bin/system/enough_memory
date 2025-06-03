@@ -1,0 +1,6 @@
+#!/bin/bash
+# @see https://rudd-o.com/linux-and-free-software/tales-from-responsivenessland-why-linux-feels-slow-and-how-to-fix-that
+
+# change /etc/sysctl.conf to make it permanent
+sudo sysctl -w vm.swappiness=1
+sudo sysctl -w vm.vfs_cache_pressure=10

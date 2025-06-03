@@ -1,0 +1,25 @@
+#!/bin/bash
+
+. ~/.local/bin/git_fzf
+
+# 更改文件默认打开程序
+function xdg-set() {
+    if [ -n "$*" ];then
+       xdg-mime default "$(find /usr/share/applications/  ~/.local/share/applications/ -type f | fzf | sed 's/.*\///g')"  "$(xdg-mime query filetype "$*")"
+       return
+    else
+       readarray -t file_list < <(/usr/bin/fdfind -HI | rg -v ".git" | git_fzf )
+    fi
+
+    if (( "${#file_list[@]}" <= 0 ));then
+       return
+    fi
+
+    for i in "${file_list[@]}"
+    do
+       echo -n "${i}: "
+       xdg-mime default "$(find /usr/share/applications/  ~/.local/share/applications/ -type f | fzf | sed 's/.*\///g')"  "$(xdg-mime query filetype "${i}")"
+    done
+}
+
+xdg-set "$@"

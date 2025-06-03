@@ -1,0 +1,16 @@
+#!/bin/bash
+# find&cd a directory. Copy its full path into clipboard
+function zzd()
+{
+    local cli
+    cli=$(baseff dir "$*")
+    if [ -z "${cli}" ];then
+        echo "Nothing found!"
+    else
+        echo "${cli}"
+        cd "${cli}" || exit
+        echo -n "${cli}" | pclip
+    fi
+}
+
+zzd "$@"

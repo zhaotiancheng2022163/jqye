@@ -1,0 +1,9 @@
+#!/bin/bash
+# 时间服务器
+# see http://tf.nist.gov/tf-cgi/servers.cgi
+function adjustclock()
+{
+  sudo rdate -s time-c.nist.gov
+}
+
+adjustclock

@@ -1,0 +1,7 @@
+#!/bin/bash
+function ssa2srt() {
+    # ssa should be utf-8 format
+    for i in *.ssa ; do ffmpeg -i "$i" "$i.srt" ; done
+}
+
+ssa2srt

@@ -1,0 +1,13 @@
+#!/bin/bash
+function te()
+{
+    if [ "$TERM" = "linux" ]; then
+        tsocks emacs -nw "$@"
+    elif [ -x "$(command -v tmux)" ]; then
+        TERM=tmux-256color COLORTERM=24bit emacsclient -a '' -t "$@"
+    else
+        TERM=xterm-256color COLORTERM=24bit tsocks emacs -nw "$@"
+    fi
+}
+
+te "$@"

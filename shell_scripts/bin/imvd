@@ -1,0 +1,38 @@
+#!/bin/bash
+
+# 此脚本浏览作为目录给出的参数所有图片
+# 此参数是模糊查找给出的
+# 如果没有给出, 那么用rofi -dmenu 选择~/Pictures的图片
+imv_script_name () {
+    if [[ "$XDG_SESSION_TYPE" == "x11" ]]; then
+        imv-x11 "$@";
+    elif [[ "$XDG_SESSION_TYPE" == "wayland" ]]; then
+        imv-wayland "$@";
+    fi
+}
+
+search_file() {
+    fdfind -H -tf -tl -E={.git,.idea,node_modules,build} \
+           -c never ".*" ~/Pictures/
+}
+
+rofi_select() {
+    rofi -config "${HOME}"/.config/rofi/config_dmenu.rasi  -dmenu \
+         -p "${0##*/}" -l 10 -i -multi-select -ballot-unselected-str ""
+}
+
+main () {
+    if [[ -n "$*" ]];then
+       readarray -t picture_array < <(fdfind -H -td -tl -c never "$@" ~/Pictures/)
+       if [[ ${#picture_array[@]} -gt 0 ]];then
+          imv_script_name -r "${picture_array[@]}"
+       fi
+    else
+        readarray -t picture_array < <( search_file | rofi_select )
+        if [[ ${#picture_array[@]} -gt 0 ]];then
+           imv_script_name "${picture_array[@]}"
+        fi
+    fi
+}
+
+main "$@"

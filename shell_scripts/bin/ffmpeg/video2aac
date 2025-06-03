@@ -1,0 +1,5 @@
+#!/bin/bash
+
+while read -r filename;do
+    ffmpeg -nostdin -i "${filename}" -vn -acodec copy "${filename%.*}.aac"
+done < <(fdfind -e mp4)

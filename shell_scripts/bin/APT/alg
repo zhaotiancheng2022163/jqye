@@ -1,0 +1,25 @@
+#!/bin/bash
+
+# 用fzf无参数查看软件包列表或直接传参查看,支持fzf多选
+
+# ============================== apt ==============================
+
+. ~/.local/bin/apt_fzf
+
+
+alg(){
+
+    if [[ -n "$*" ]];then
+        local -a array
+        array=("$@")
+        apt list 2>/dev/null | awk '$3!="i386" {print $0}' |\
+            rg -i "$(echo "${array[@]}" | sed 's/ /|/g')"
+        unset array
+        return
+    fi
+
+    apt list 2>/dev/null | awk '$3!="i386" {print $0}' | apt_fzf
+}
+
+
+alg "$@"

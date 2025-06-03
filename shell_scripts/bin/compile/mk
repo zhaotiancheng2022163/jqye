@@ -1,0 +1,10 @@
+#!/bin/bash
+function mk() {
+    if [ "$OS_NAME" = "Darwin" ]; then
+        make -j"$(sysctl -n hw.ncpu)"
+    else
+        make -j"$(nproc)"
+    fi
+}
+
+mk

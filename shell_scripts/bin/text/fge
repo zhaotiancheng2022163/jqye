@@ -1,0 +1,15 @@
+#!/bin/bash
+# =============================== 查找特定扩展名文件中的字符串  ==============================
+function fge () {
+    if [ -z "$1" ]; then
+        echo "Usage: fge file-extension PATTERN"
+        echo "Find file containing PATTERN wiht file-extension"
+        echo "Example: fge scss sup"
+    else
+        # find .  -type f \( -path .svn -o -path .git -o -path .hg -o -path .sass-cache -o -path node_modules -o -path .cache \) -prune -o -name "*$1" -exec grep -sn "$2" {} \;
+        # fdfind -tf -e "$1"  -E={.svn,.git,.hg,.sass-cache,node_modules,.cache} --exec grep -sn "$2" {} \;
+        fdfind -tf -e "$1"  -E={.svn,.git,.hg,.sass-cache,node_modules,.cache} --exec grep -sn "$2" {};
+    fi
+}
+
+fge "$@"

@@ -1,0 +1,87 @@
+#!/bin/bash
+# charge U disk
+# 以前出错的原因是lf默认SHELL是sh, Debian12下sh是dash的软连接, 不支持bash的一些语法.
+# Get the target volume
+if [ -n "$*" ];then
+    readarray -t target_array < <(lsblk | rg "$@" |\
+                            sed 's/^[^[:alnum:]]*//' | cut -d' ' -f1)
+else
+    readarray -t target_array < <(lsblk | rofi -config "${HOME}"/.config/rofi/config_dmenu.rasi  -dmenu \
+                            -p "${0##*/}" -l 10 -i -multi-select -ballot-unselected-str "" |\
+                            sed 's/^[^[:alnum:]]*//' | cut -d' ' -f1)
+fi
+# Is it encrypted or something?
+for target_vol in "${target_array[@]}";do
+    if [[ "$(lsblk -o NAME,FSTYPE | sed 's/^[^[:alnum:]]*//' |\
+           grep "$target_vol" | awk '{print $2}')" == "crypto_LUKS" ]]; then
+        echo "Volume is encrypted"
+        udisksctl unlock -b /dev/"$target_vol"
+        list_mount
+        exit 0
+    fi
+done
+
+
+adjust_path() {
+    if [[ $(lsblk -o NAME,RM | sed 's/^[^[:alnum:]]*//' | grep "$1" | awk '{print $2}') == 1 ]]; then
+        removable=true
+    else
+        removable=false
+    fi
+
+    # Adjust to proper device path
+    if [ -e /dev/"$1" ]; then
+        target_vol="/dev/$1"
+    elif [ -e /dev/mapper/"$1" ]; then
+        target_vol="/dev/mapper/$1"
+    else
+        echo "Something vent wrong, no such volume?"
+    fi
+}
+
+# Is it internal?
+# for target_vol in "${target_array[@]}";do
+mount_vol() {
+    if $removable; then
+        # 如果已经挂载, 那么卸载, 否则挂载
+        if findmnt -rno SOURCE,TARGET "$1" > /dev/null; then
+            sync
+            mount_point=$(findmnt -n -o TARGET "$1")
+            udisksctl unmount -b "$1"
+            # 断开电源安全弹出
+            # udisksctl power-off -b "$1"
+            notify-send -u normal  "Unmounted $1" #to $mount_point"
+        else
+            udisksctl mount -b "$1"
+            mount_point=$(findmnt -n -o TARGET "$1")
+            notify-send -u normal  "Mounted $1 to $mount_point"
+        fi
+        echo
+    else
+        echo "Input mountpoint:"
+
+        IFS= read -r mountpoint
+        # read mountpoint
+
+        while ! [ -d "$mountpoint" ]; do
+            mkdir -p "$mountpoint" || echo "$mountpoint is not a possible mountpoint. Input new mountpoint:" && IFS= read -r mountpoint
+        done
+        # 如果已经挂载, 那么卸载, 否则挂载
+        if findmnt -rno SOURCE,TARGET "$1" > /dev/null; then
+            umount "$1" &&  echo "Unmounted $1 to $mountpoint Press Return to continue" && notify-send -u normal "Unmounted $1 to $mountpoint Press Return to continue"
+        else
+            mount "$1" "$mountpoint" &&  echo "Mounted $1 to $mountpoint Press Return to continue" && notify-send -u normal  "Mounted $1 to $mountpoint Press Return to continue"
+        fi
+    fi
+}
+
+for target_vol in "${target_array[@]}";do
+    target_vol="${target_vol//$'\n'/}"
+    adjust_path "$target_vol"
+    mount_vol "$target_vol"
+done
+
+if [[ ${#target_array[@]} != 0 &&  $removable == "true" ]]; then
+    echo "Press Return to continue"
+    read ENTER
+fi

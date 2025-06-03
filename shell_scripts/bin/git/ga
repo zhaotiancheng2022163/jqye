@@ -1,0 +1,77 @@
+#!/bin/bash
+
+# 使用参数来git add, 支持多参数, 支持fzf多选
+
+# ============================== git ==============================
+
+. ~/.local/bin/git_fzf
+
+
+ga(){
+    if ! git rev-parse 2>/dev/null;then
+        echo "致命错误：不是 git 仓库（或者任何父目录）：.git"
+        return
+    fi
+
+    # 接受位置参数
+    if [[ -n "$*" ]];then
+       # 按理来说, $*更合理, 为什么报错?
+       git add "$@"  #有什么错git 来处理, 否则程序太过复杂
+       return
+    fi
+
+    # 仓库的主目录
+    local path="$(git rev-parse --show-toplevel)"
+    local new_files="$(git ls-files --others --exclude-standard "$path")"
+
+    # 存放没有放到缓冲区的新建文件名.
+    readarray -t  file_array < <(git ls-files --others --exclude-standard "${path}")
+    # 加上修改的文件
+    file_array+=("$(git diff --name-only)")
+
+    # 判断是否有文件需要git add, 不需要则退出
+    if (( 0 == "${#file_array[@]}" ));then
+       return
+    fi
+
+    # 需要判断上一个目录是否可以git add, 然后加上相应的目录
+    if [[ $(pwd) == "${path}" ]];then
+            file_array+=(".")
+        else
+            file_array+=("." "..")
+    fi
+
+    # 选择文件名字
+    readarray -t name_list < <(for i in "${file_array[@]}";do echo "${i}"; done | git_fzf )
+
+    # 如果为空, 则什么都不做
+    if (( 0 == ${#name_list[@]} ));then
+        echo "please choose a reasonable file/folder!"
+        return
+    fi
+
+
+    local xclip_list # 需要放到剪切板中的名字
+    local xclip_list_nohead # 需要放到剪切板中的名字
+    for name in "${name_list[@]}"; do
+        # 如果是. .. 或者是新加入的文件那么直接git add
+        if [[ "${name}" == "." || "${name}" == ".." || "${new_files}" == *"${name}"* ]]; then
+            git add "${name}"
+            [ -n "${xclip_list_nohead}" ] \
+                && xclip_list_nohead="${xclip_list_nohead}\n${name}" \
+                || xclip_list_nohead="${name}"
+            xclip_list="${xclip_list} ${path}/${name}"
+        else # 如果不是, 说明是修改的文件,需要组合出它们的绝对路径
+            git add "${path}/${name}"
+            [ -n "${xclip_list_nohead}" ] \
+                && xclip_list_nohead="${xclip_list_nohead}\n${name}" \
+                || xclip_list_nohead="${name}"
+            xclip_list="${xclip_list} ${path}/${name}"
+        fi
+    done
+    echo -n "${xclip_list}" | xclip -sel clip
+    sleep 0.01
+    echo -e "${xclip_list_nohead}" | xclip -sel clip
+}
+
+ga "$@"

@@ -1,0 +1,10 @@
+#!/bin/bash
+
+# 相对路径变为完整路径
+function fp () {
+    local str=$PWD/$*
+    echo -n "${str}" |pclip;
+    echo "${str}"
+}
+
+fp

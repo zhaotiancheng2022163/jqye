@@ -1,0 +1,39 @@
+#!/bin/bash
+## File & strings related functions:
+# search the file and pop up dialog, then put the full path in clipboard
+# usage: baseff (file|dir) keyword
+# is used as API instead of user command
+function baseff()
+{
+    local fullpath=$2
+    local filename=${fullpath##*./} # remove  ".../" from the beginning
+
+    # - only the filename without path is needed
+    # - filename should be reasonable
+    if [ "$1" = "file" ] || [ "$1" = "relfile" ];then
+        if hash fd 2>/dev/null;then
+            local rlt=`fd --full-path -H --type f -E'.git/*' -E'vendor/*' -E'.svn/*' -E'.npm/*' -E'.backups/*' -E'.hg/*' -E'node_modules/*' -I ".*${filename}.*" | fzfnormal`
+        else
+            local rlt=`find . \( -iwholename '*#' -o -iwholename '*/.backups/*' -o -iwholename '*/deployment/*' -o -iwholename '*/_doc/*' -o -iwholename '*/test/*' -o -iwholename '*/coverage/*' -o -iwholename '*/.gradle/*' -o -iwholename '*~' -o -iwholename '*.swp' -o -iwholename '*/dist/*' -o -iwholename '*.class' -o -iwholename '*.js.html' -o -iwholename '*.elc' -o -iwholename '*.pyc' -o -iwholename '*/bin/*' -o -iwholename '*/.config/*' -o -iwholename '*/vendor/*' -o -iwholename '*/bower_components/*' -o -iwholename '*/node_modules/*' -o -iwholename '*/.svn/*' -o -iwholename '*/.git/*' -o -iwholename '*/.gitback/*' -o -iwholename '*/.npm/*' -o -iwholename '*.sass-cache*' -o -iwholename '*/.hg/*' \) -prune -o -type f -iwholename '*'${filename}'*' -print | fzfnormal`
+        fi
+    else
+        if hash fd 2>/dev/null;then
+            local rlt=`fd --full-path -H --type d -E'.git/*' -E'vendor/*' -E'.svn/*' -E'.npm/*' -E'.backups/*' -E'.hg/*' -E'node_modules/*' -I ".*${filename}.*" | fzfnormal`
+        else
+            local rlt=`find . \( -iwholename '*#' -o -iwholename '*/.backups/*' -o -iwholename '*/deployment/*' -o -iwholename '*/_doc/*' -o -iwholename '*/test/*' -o -iwholename '*/coverage/*' -o -iwholename '*/.gradle/*' -o -iwholename '*~' -o -iwholename '*.swp' -o -iwholename '*/dist/*' -o -iwholename '*.class' -o -iwholename '*.js.html' -o -iwholename '*.elc' -o -iwholename '*.pyc' -o -iwholename '*/bin/*' -o -iwholename '*/.config/*' -o -iwholename '*/vendor/*' -o -iwholename '*/bower_components/*' -o -iwholename '*/node_modules/*' -o -iwholename '*/.svn/*' -o -iwholename '*/.git/*' -o -iwholename '*/.gitback/*' -o -iwholename '*/.npm/*' -o -iwholename '*.sass-cache*' -o -iwholename '*/.hg/*' \) -prune -o -type d -iwholename '*'${filename}'*' -print | fzfnormal`
+        fi
+    fi
+    if [ -z "${rlt}" ];then
+        echo ""
+    else
+        if [ "$1" = "relfile" ]; then
+            # use relative path
+            echo $rlt
+        else
+            # convert relative path to full path
+            echo $(cd $(dirname $rlt); pwd)/$(basename $rlt)
+        fi
+    fi
+}
+
+baseff "$@"

@@ -1,0 +1,23 @@
+#!/bin/bash
+
+# 用fzf无参数查看没有安装的软件包或者直接传参数查看,支持fzf多选
+
+# ============================== apt ==============================
+
+. ~/.local/bin/apt_fzf
+
+
+algu() {
+    if [[ -n "$*" ]];then
+        local -a array
+        array=("$@")
+        apt list 2>/dev/null | awk '$NF!="i386" {print $0}' |\
+            rg -v "已安装"  | rg -i "$(echo "${array[@]}" | sed 's/ /|/g')"
+        unset array
+        return
+    fi
+
+    apt list 2>/dev/null | awk '$NF!="i386" {print $0}' | rg -v "已安装" | apt_fzf
+}
+
+algu "$@"

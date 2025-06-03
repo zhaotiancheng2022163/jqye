@@ -1,0 +1,26 @@
+#!/bin/bash
+
+. ~/.local/bin/git_fzf
+
+# 查看文件打开方式
+function xdg(){
+    if [ -n "$*" ];then
+       echo -n "$*: "
+       xdg-mime query default "$(xdg-mime query filetype "$*")"
+       return
+    else
+       readarray -t file_list < <(/usr/bin/fdfind -HI | rg -v ".git" | git_fzf )
+    fi
+
+    if (( "${#file_list[@]}" <= 0 ));then
+       return
+    fi
+
+    for i in "${file_list[@]}"
+    do
+       echo -n "${i}: "
+       xdg-mime query default "$(xdg-mime query filetype "${i}")"
+    done
+}
+
+xdg "$@"

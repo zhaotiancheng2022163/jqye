@@ -1,0 +1,69 @@
+#!/bin/bash
+
+# easy compress - archive wrapper
+zstd_compress() {
+    FILE=$1
+    shift
+    if [ "$#" -eq 1 ];then
+        zstd -T0 --ultra -9 -o "${FILE}" $1
+    elif [ "$#" -ge 2 ];then
+        tar cf "${FILE%%.*}".tar "${@}"
+        zstd -T0 --ultra -22 -o "${FILE%%.*}".tar.zst "${FILE%%.*}".tar
+        rm -rf "${FILE%%.*}".tar
+    fi
+}
+
+bzip2_compress() {
+    FILE=$1
+    shift
+    if [ "$#" -eq 1 ] && [ -f "$1" ];then
+       cat "$1" | parallel --pipe --recend '' -k bzip2 --best > "${FILE}"
+    elif [ "$#" -ge 2 ];then
+       tar cf "${FILE%%.*}".tar "${@}"
+       bzip2 "${FILE%%.*}".tar
+       rm -rf "${FILE%%.*}".tar
+    fi
+}
+
+
+brotli_compress() {
+    FILE=$1
+    shift
+    if [ "$#" -eq 1 ] && [ -f "$1" ];then
+       brotli -q 11 -f "$@" -o "${FILE}"
+    else
+       echo "Error Usages!"
+    fi
+}
+
+compress () {
+    if [ "$#" -le 1 ];then
+       echo "Please enter at least two parameters"
+       exit 1
+    fi
+
+    if [ -n "$1" ] ; then
+        FILE=$1
+        case "${FILE}" in
+            *.tar) shift && tar cf "${FILE}" "${@}" ;;
+            *.tar.bz|*.tar.bz2|*.tbz|*.tbz2) shift && tar cjvf "${FILE}" "${@}" ;;
+            *.tar.gz|*.tgz) shift && tar czvf "${FILE}" "${@}" ;;
+            *.tar.xz|*.txz) shift && tar cJvf "${FILE}" "${@}" ;;
+            *.tar.zst) shift && tar --zstd -cvf "${FILE}" "${@}" ;;
+            *.zip) shift && zip -r "${FILE}" "${@}" ;;
+            *.rar) shift && rar a -vr "${FILE}" "${@}" ;;
+            *.7z)  shift && 7z a "${FILE}" "${@}" ;;
+            *.gz)  shift && tar czvf "${FILE}" "${@}" ;;
+            *.zst) zstd_compress "$@" ;;
+            *.bz2) bzip2_compress "$@" ;;
+            *.tar.br) shift && tar cf "${FILE%.*}" "${@}"
+                      brotli -q 11 -f "${FILE%.*}" -o "${FILE}"
+                      rm -rf "${FILE%.*}" ;;
+            *.br) brotli_compress "$@" ;;
+        esac
+    else
+        echo "usage: compress <foo.tar.gz> ./foo ./bar"
+    fi
+}
+
+compress "$@"

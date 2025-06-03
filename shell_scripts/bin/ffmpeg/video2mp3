@@ -1,0 +1,23 @@
+#!/bin/bash
+
+function video2mp3 () {
+    if [ -z "$1" ]; then
+        echo "Usage: video2mp3 filename [start_second] [total_second]"
+        echo "For example, video2mp3 1.mp4 5 10"
+        return;
+    fi
+    # set gif width
+    if [ -z "$2" ]; then
+        local start=0
+    else
+        local start=$2
+    fi
+    if [ -z "$2" ]; then
+        local total=5
+    else
+        local total=$3
+    fi
+    ffmpeg -i "$1" -vn -ss "$start" -t "$total" -acodec copy "${1%%.*}-$start-$total.mp3"
+}
+
+video2mp3 "$@"

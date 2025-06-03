@@ -1,0 +1,14 @@
+#!/bin/bash
+
+
+# =============================== 在文件行首添加字符串  ==============================
+function prepend(){
+  if [ -z "$1" ]; then
+      echo "Usage: prepend line file"
+      echo "prepend a line into the file. The line could contain CR"
+  else
+      sed -i -e "1i $1" "$2"
+  fi
+}
+
+prepend "$@"

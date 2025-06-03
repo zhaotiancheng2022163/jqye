@@ -1,0 +1,7 @@
+#!/bin/bash
+# 删除用户主目录下的 .bbdb 文件中包含特定模式的行
+function bbdbclean(){
+    sed -i.bak '/\["" ""/d' "$@"
+}
+
+bbdbclean "$@"

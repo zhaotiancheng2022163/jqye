@@ -1,0 +1,63 @@
+#!/bin/bash
+
+# 使用参数来git checkout --, 支持多参数, 支持fzf多选
+
+# ============================== git ==============================
+
+. ~/.local/bin/git_fzf
+
+
+gd() {
+    if ! git rev-parse 2>/dev/null;then
+        echo "致命错误：不是 git 仓库（或者任何父目录）：.git"
+        return
+    fi
+
+    # 接受位置参数
+    if [[ -n "$*" ]];then
+
+        git checkout -- "$@"  #有什么错git 来处理, 否则程序太过复杂
+
+        # 成功之后再复制名字, 保险一些, 防止错误
+        # 而且这种情况来说位置参数也是粘贴上来的
+        echo -n "$@" | xclip -sel clip
+
+        return
+    fi
+
+    # 判断是否有新增
+    if (( 0 < "$(git diff --name-only | wc -l)" )); then
+
+        readarray -t  name < <( git diff --name-only | uniq | git_fzf )
+
+        # 如果为空, 则什么都不做
+        if (( 0 == "${#name[@]}" ));then
+           echo "please choose a reasonable file/folder!"
+           return
+        fi
+
+        local path
+        path="$(git rev-parse --show-toplevel)"  # 仓库的主目录
+
+        local -a argument=()
+        local argument_nohead
+        for i in "${name[@]}";do
+            [ -n "${argument_nohead}" ] \
+                && argument_nohead="${argument_nohead}\n${i}" \
+                || argument_nohead="${i}"
+            argument+=("${path}/${i}")
+        done
+
+        # 绝对路径
+        echo "${argument[@]}" | xclip -sel clip
+        sleep 0.01 # 需要时间避免覆盖
+        # fzf选择, 可以一定程度上保证正确的名字.
+        # 先复制, 写commit信息方便一些
+        echo -e "${argument_nohead}" | xclip -sel clip
+
+        git checkout -- "${argument[@]}"
+
+    fi
+}
+
+gd "$@"

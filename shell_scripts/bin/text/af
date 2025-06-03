@@ -1,0 +1,11 @@
+#!/bin/bash
+function af () {
+    local filename
+    filename=$(grepcmd "$@" | fzfnormal | sed -e "s%^ *\([a-z0-9A-Z_.\/+-]*\).*%\1%"|tr -d "\n")
+    if [ -n "$filename" ];then
+        echo -n "$PWD/$filename" | pclip
+        gclip
+    fi
+}
+
+af "$@"

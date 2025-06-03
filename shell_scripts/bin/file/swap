@@ -1,0 +1,10 @@
+#!/bin/bash
+function swap()         # swap 2 filenames around
+{
+    local TMPFILE=tmp.$$
+    mv "$1" $TMPFILE
+    mv "$2" "$1"
+    mv $TMPFILE "$2"
+}
+
+swap "$@"

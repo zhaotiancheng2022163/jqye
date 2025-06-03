@@ -1,0 +1,9 @@
+#!/bin/bash
+function ffr {
+    local cli
+    cli=$(baseff relfile "$*")
+    echo "${cli}"
+    echo -n "${cli}" | pclip
+}
+
+ffr "$@"

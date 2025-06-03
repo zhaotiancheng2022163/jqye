@@ -1,0 +1,34 @@
+#!/bin/bash
+
+imv_script_name () {
+    if [[ "$XDG_SESSION_TYPE" == "x11" ]]; then
+        imv-x11 "$@";
+    elif [[ "$XDG_SESSION_TYPE" == "wayland" ]]; then
+        imv-wayland "$@";
+    fi
+}
+
+search_pic() {
+    fdfind -H -tf -tl -E={.git,.idea,node_modules,build} -c never ".*" ~/Pictures/
+}
+
+rofi_select() {
+    rofi -config "${HOME}"/.config/rofi/config_dmenu.rasi  -dmenu \
+         -p "${0##*/}" -l 10 -i -multi-select -ballot-unselected-str ""
+}
+
+main() {
+    if [[ -n "$*" ]];then
+       readarray -t picture_array < <(fdfind -H -tf -tl -c never "$@" ~/Pictures/ | xargs ls -t)
+       if [[ ${#picture_array[@]} -gt 0 ]];then
+          imv_script_name "${picture_array[@]}"
+       fi
+    else
+        readarray -t picture_array < <( search_pic | rofi_select )
+        if [[ ${#picture_array[@]} -gt 0 ]];then
+           imv_script_name "${picture_array[@]}"
+        fi
+    fi
+}
+
+main "$@"

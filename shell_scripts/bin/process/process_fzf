@@ -1,0 +1,28 @@
+# ps with fzf
+
+
+# ============================== process ==============================
+
+# fk(){
+#  	kill -15  $(ps aux  | fzf | awk '{print $2}') &>/dev/null
+# }
+
+# 仍有改进的余地, 要是位置参数传下去
+# 在fzf中就变成了已经选择的了就好了.
+export FZF_COLUMNS=30
+process_fzf() {
+ps -eo pid,%cpu,%mem,stat,comm \
+      --sort=-%mem,-%cpu | fzf --height 60% --layout reverse --no-scrollbar \
+                               --no-preview \
+                               --border=sharp\
+                               --color 'border:#00ff00,hl:#00ff00,bg+:#171d24,fg+:#40ba52' \
+                               --color 'hl+:#00ff00,separator:#ff0000' \
+                               --prompt '> ' \
+                               --multi \
+                               --bind 'ctrl-l:clear-query' \
+                               --bind 'ctrl-r:reload(ps -eo pid,%cpu,%mem,stat,comm \
+                                                        --sort=-%mem,-%cpu )' \
+                               --bind 'ctrl-a:transform:[[ ! $FZF_PROMPT =~ All ]] &&
+                                       echo "change-prompt(All> )+select-all" ||
+                                       echo "change-prompt(> )+deselect-all"'
+}

@@ -1,0 +1,14 @@
+#!/bin/bash
+function myinfo()   # get current host related info
+{
+    echo -e "\nYou are logged on ${MAGENTA}$HOST"
+    echo -e "\nAdditionnal information:$RESET " ; uname -a
+    echo -e "\n${MAGENTA}Users logged on:$RESET " ; w -h
+    echo -e "\n${MAGENTA}Current date :$RESET " ; date
+    echo -e "\n${MAGENTA}Machine stats :$RESET " ; uptime
+    echo -e "\n${MAGENTA}Memory stats :$RESET " ; free
+    echo -e "\n${MAGENTA}Local IP Address :$RESET" ; myip
+    echo
+}
+
+myinfo

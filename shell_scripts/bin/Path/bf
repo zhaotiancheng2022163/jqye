@@ -1,0 +1,10 @@
+#!/bin/bash
+# find a file and copy its *nix full path into clipboard
+function bf {
+    local cli
+    cli=$(baseff file "$*")
+    echo "${cli}"
+    echo -n "${cli}" | pclip
+}
+
+bf "$@"

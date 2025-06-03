@@ -1,0 +1,13 @@
+#!/bin/bash
+
+# 使用fzf列出文件然后用emacs打开
+
+function eed()
+{
+	filename=$(/usr/bin/fdfind -HI -tf -E ".git" | fzf )
+	if [ -f "$filename" ]; then
+        emacsclient -a '' -t "$filename"
+	fi
+}
+
+eed

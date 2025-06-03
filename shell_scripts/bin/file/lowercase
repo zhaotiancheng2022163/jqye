@@ -1,0 +1,21 @@
+#!/bin/bash
+function lowercase()  # move filenames to lowercase
+{
+    for file ; do
+        filename=${file##*/}
+        case "$filename" in
+            */*) dirname=${file%/*} ;;
+            *) dirname=.;;
+        esac
+        nf=$(echo "${filename}" | tr '[:upper:]' '[:lower:]')
+        newname="${dirname}/${nf}"
+        if [ "$nf" != "$filename" ]; then
+            mv "$file" "$newname"
+            echo "lowercase: $file --> $newname"
+        else
+            echo "lowercase: $file not changed."
+        fi
+    done
+}
+
+lowercase "$@"

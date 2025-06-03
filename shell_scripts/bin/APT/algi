@@ -1,0 +1,24 @@
+#!/bin/bash
+
+# 用fzf无参数查看安装列表或者直接传参数查看,支持fzf多选
+
+# ============================== apt ==============================
+
+. ~/.local/bin/apt_fzf
+
+
+algi(){
+
+    if [[ -n "$*" ]];then
+        local -a array
+        array=("$@")
+        apt list --installed 2>/dev/null |\
+            rg -i "$(echo "${array[@]}" | sed 's/ /|/g')"
+        unset array
+        return
+    fi
+
+    apt list --installed 2>/dev/null | awk 'NR!=1 {print $0}' | apt_fzf
+}
+
+algi "$@"

@@ -1,0 +1,21 @@
+#!/bin/bash
+function fzfnormal {
+
+    if [ "$#" -ge 2 ] && [ -x "$(command -v percol)" ];then
+        command percol "$@" && exit 0
+    fi
+
+    if [ -x "$(command -v fzf)" ]; then
+        if [ "$#" -eq 0 ];then
+            command fzf --layout reverse --no-scrollbar  --no-preview \
+                        -1 -0 -m --cycle --no-border && exit 0
+        else
+            command fzf --layout reverse --no-scrollbar  --no-preview \
+                        -1 -0 -m --cycle --no-border -q "$@" && exit 0
+        fi
+    fi
+
+    echo "no fzf/percol execute file is exist" && exit 1
+}
+
+fzfnormal "$@"

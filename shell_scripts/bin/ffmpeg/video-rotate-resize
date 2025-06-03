@@ -1,0 +1,11 @@
+#!/bin/bash
+function video-rotate-resize {
+    if [ -z "$1" ]; then
+        echo "Usage: video-rotate-resize 1.mp4"
+        return;
+    fi
+    ffmpeg -i "$1" -vf "transpose=1" -filter:v scale=640:-1 new-"${1%%.*}".mp4
+    mv new-"${1%%.*}".mp4 "${1%%.*}".mp4
+}
+
+video-rotate-resize "$@"

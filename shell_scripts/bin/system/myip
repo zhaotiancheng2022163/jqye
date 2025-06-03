@@ -1,0 +1,9 @@
+#!/bin/bash
+function myip() # get IP adresses
+{
+  local myip
+  myip=$(w3m -dump http://checkip.dyndns.org:8245/)
+  echo "${myip}"
+}
+
+myip

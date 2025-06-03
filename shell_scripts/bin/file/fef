@@ -1,0 +1,13 @@
+#!/bin/bash
+# =============================== 查找特定扩展名文件  ==============================
+function fef  () {
+    if [ -z "$1" ]; then
+        echo "Usage: fef file-extension PATTERN"
+        echo "Find file containing PATTERN wiht file-extension"
+        echo "Example: fef scss sup"
+    else
+        find .  -type f \( -path .fseventsd -path .svn -o -path .git -o -path .hg -o -path .sass-cache -o -path node_modules -o -path .cache \) -prune -o -name "$1" -exec grep -l "$2" {} \; | fzfnormal | sed -e "s%^ *\([a-z0-9A-Z_.\/-]*\).*%\1%"|tr -d "\n" | pclip
+    fi
+}
+
+fef "$@"

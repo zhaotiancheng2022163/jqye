@@ -1,0 +1,7 @@
+#!/bin/bash
+# 查找文件并按大小排序，打印完整路径
+function big() {
+  find . -name "$*" -type f -printf "$(pwd)%P %s\n"|sort -k2,2n
+}
+
+big "$@"

@@ -1,0 +1,45 @@
+#!/bin/bash
+
+# 使用参数来git switch, 支持用fzf选择
+
+# ============================== git ==============================
+
+. ~/.local/bin/git_fzf
+
+
+gb(){
+    if ! git rev-parse 2>/dev/null;then
+        echo "致命错误：不是 git 仓库（或者任何父目录）：.git"
+        return
+    fi
+
+    # 接受位置参数
+    if [[ -n "$*" ]];then
+        git switch "$*"  #有什么错git 来处理, 否则程序太过复杂
+        return
+    fi
+
+
+    local name
+    local current_branch
+    current_branch=$(git rev-parse --abbrev-ref HEAD)
+    # name=$(git branch | fzf --height 80% --reverse --preview="git log --oneline {1}" --no-border) 2>/dev/null
+    name=$(git branch | fzf --height 20% --reverse --no-preview --no-border | awk '{print $NF}') 2>/dev/null
+
+    # 如果为空, 则什么都不做
+    if [[ -z "${name}" ]];then
+       echo "please choose a reasonable branch!"
+       return
+    fi
+
+    # 先复制, 知道名字
+    echo "${name}" | xclip -sel clip
+
+    if [[ "${name}" == "${current_branch}" ]];then
+       return
+    fi
+
+    git switch "${name}"
+}
+
+gb "$@"

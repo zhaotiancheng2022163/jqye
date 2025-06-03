@@ -1,0 +1,6 @@
+#1/bin/bash
+function zzz() {
+    cd "$HOME" && zzd "$@"
+}
+
+zzz "$@"

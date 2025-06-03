@@ -1,0 +1,7 @@
+#!/bin/bash
+
+function gr-i() {
+    git rebase -i "$@"
+}
+
+gr-i "$@"

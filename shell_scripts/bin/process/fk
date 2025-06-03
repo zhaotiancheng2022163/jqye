@@ -1,0 +1,65 @@
+#!/bin/bash
+
+# 用参数作为进程名终止进程, 或用fzf无参数列出进程并选择终止的进程, 支持fzf多选
+
+# ============================== process ==============================
+
+. ~/.local/bin/process_fzf
+
+
+fk() {
+
+  local -a pid=()
+
+  # 接受位置参数
+  if [[  -n "$*" ]];then
+     for i in "$@";do
+         readarray -t kill_list <  <( ps -e | rg "$i" | rg -v ".* rg$" | awk '{print $4}')
+         readarray -t pid < <( ps -e | rg "$i" | rg -v ".* rg" | awk '{print $1}')
+     done
+
+     # 还是留个拷贝进程名字好, 即使将来知道kill错了, 也得
+     # 知道是kill了哪些
+     echo "${kill_list[@]}" | xclip -sel clip
+
+     if(( ${#pid[@]} ));then
+         for i in "${pid[@]}";do
+             kill -15 "${i}" &>/dev/null
+         done
+     fi
+
+     for i in "${kill_list[@]}";do
+         echo "killed ${i}"
+     done
+
+     unset kill_list
+     unset pid
+     return
+  fi
+
+  local pre_process
+  pre_process="$(process_fzf)"
+
+  if [[ -z "${pre_process}" ]];then
+     unset pre_process
+     return
+  fi
+
+  readarray -t pid < <( echo "${pre_process}"  | awk '{print $1}')
+
+  # 还是留个拷贝进程名字好, 即使将来知道kill错了, 也得
+  # 知道是kill了哪些
+  echo "${pid[@]}" | xargs -I pids ps -p pids | \
+      awk 'NR!=1 {print $4}' | xargs echo -n | xclip -sel clip
+
+  for i in "${pid[@]}";do
+      kill -15 "${i}" &>/dev/null
+      echo -n "killed "
+      echo "${pre_process}" | rg  "${i}" | awk '{print $5}'
+  done
+
+  unset pid
+}
+
+
+fk "$@"

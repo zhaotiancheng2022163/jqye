@@ -1,0 +1,12 @@
+#!/bin/bash
+# =============================== 搜索字符串  ==============================
+function grepcmd () {
+    if hash rg 2>/dev/null; then
+        # @see http://stackoverflow.com/questions/592620/check-if-a-program-exists-from-a-bash-script
+        rg -s -n -g="!archive-contents" -g='!.git/*' -g='!.bzr/*' -g='!.svn/*' -g='!bower_components/*' -g='!node_modules/*' -g='!.sass-cache/*' -g='!.cache/*' -g='!test/*' -g='!tests/*' -g='!.metadata/*' -g='!logs/*' -g='!*.log' -g='!*.properties' -g='!*.session' -g='!*.swp' -g='!TAGS' -g='!tags' -g='!GTAGS' -g='!GPATH' -g='!.bookmarks.el' -g='!*.svg' -g='!history' -g='!#*#' -g='!*.min.js' -g='!*bundle*.js' -g='!*vendor*.js' -g='!*.min.css' -g='!*~' "$@"
+    else
+        command grep -rsnI --exclude='archive-contents' --exclude='*.log' --exclude='*.properties' --exclude='TAGS' --exclude=tags --exclude=GTAGS --exclude-dir=.svn --exclude-dir=bower_components --exclude-dir=node_modules --exclude-dir=dist --exclude-dir=.sass-cache --exclude-dir=.cache  --exclude-dir=.cvs --exclude-dir=.git --exclude-dir=test --exclude-dir=tests --exclude-dir=.hg --exclude-dir=.metadata --exclude-dir=logs --exclude='#*#' --exclude='*.swp' --exclude='*.min.js' --exclude='*.min.css' --exclude='*~' --color=auto "$@"
+    fi
+}
+
+grepcmd "$@"

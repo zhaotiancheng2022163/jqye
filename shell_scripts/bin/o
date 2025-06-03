@@ -1,0 +1,25 @@
+#!/bin/bash
+
+# xdg-open file with fzf
+
+# ============================= xdg-open file ==============================
+function o(){
+    if [ -n "$*" ];then
+       path="$*"
+    else
+       path="$( /usr/bin/fdfind -HI -E ".git" | fzf --height 50%  --no-border)"
+    fi
+
+    if [ -n "$path" ]; then
+        binary_file="xlsx xls xlsm doc docx ppt pptx"  # 自定义需要后台打开的文件类型
+        if [[ "$binary_file" =~ ${path##*.} ]];then
+           nohup /usr/bin/xdg-open "${path}" >/dev/null 2>&1 &    # 后台执行
+        elif [[ $(file --dereference --brief --mime-type  "${path}") =~ "text" ]];then
+           emacsclient -a '' -t "${path}"
+        else
+           /usr/bin/xdg-open "${path}"                        # 使用默认程序打开
+        fi
+    fi
+}
+
+o "$@"

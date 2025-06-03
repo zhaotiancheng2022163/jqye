@@ -1,0 +1,13 @@
+#!/bin/bash
+# backup linux system
+# 这个信息太老了
+function bksys(){
+  echo "HINT: backup file could be myarchlinux-'date +%Y%m%d-%H%M'.tgz"
+  #my home directory is already backed up, so I don't need archive it now
+  echo "BACKUP: tar zcvpf mylinux.tgz --exclude=/proc/* --exclude=/lost+found --exclude='mylinux.tgz' --exclude=/mnt/* --exclude=/home/cb/* --exclude=/sys/* /"
+  echo "RESTORE: 'tar zxvpf mylinux.tgz -C /' to restore system"
+  echo "http://i.linuxtoy.org/docs/guide/ch31s11.html for grub fstab xorg.conf"
+  echo "The message is old, please search newest message"
+}
+
+bksys

@@ -1,0 +1,21 @@
+#!/bin/bash
+
+extfzf() {
+    local filename
+    readarray -t filename < <(command fdfind  --min-depth 1 --max-depth 1  -tf \
+                                      -e={tar,tar.bz2,tar.zst,tar.bz,tar.gz,tar.xz,tgz,txz,tbz,tbz2,zip,rar,7z,gz,zst,bz2,apk,epub,xpi,odt,war,jar,z,deb,tar.br,br} \
+                                     -c never \
+                                     | fzf --height 60% --layout reverse --no-scrollbar \
+                                           --no-preview \
+                                           --color 'hl:#00ff00,bg+:#171d24,fg+:#40ba52' \
+                                           --color 'hl+:#00ff00' \
+                                           --prompt '> ' \
+                                           --multi \
+                                           --bind 'ctrl-l:clear-query' \
+                                           --bind 'ctrl-a:transform:[[ ! $FZF_PROMPT =~ All ]] &&
+                                       echo "change-prompt(All> )+select-all" ||
+                                       echo "change-prompt(> )+deselect-all"' )
+    ext "${filename[@]}"
+}
+
+extfzf

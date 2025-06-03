@@ -1,0 +1,9 @@
+#!/bin/bash
+function of() {
+    local f
+    f=$(baseoo "$*")
+    echo "${f}"
+    echo -n "${f}" | pclip
+}
+
+of "$@"

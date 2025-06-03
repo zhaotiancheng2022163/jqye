@@ -1,0 +1,12 @@
+#!/bin/bash
+# 从图像文件生成 CSS 尺寸信息
+function csssize() {
+  if [ -z "$1" ]; then
+    echo "Usage: csssize test.png"
+    echo "create css from image file, imagemagic"
+  else
+    identify -format "%[w] %[h]" "$1" |sed -e "s/\(.*\) \(.*\)/width:\1px;\nheight:\2px;/g"
+  fi
+}
+
+csssize "$@"

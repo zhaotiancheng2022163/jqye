@@ -1,0 +1,26 @@
+#!/bin/bash
+
+# 用fzf来决定退回的目录, 不带参数
+# ============================== cd ==============================
+
+ff(){
+  local -a  dirs=()
+  get_parent_dirs() {
+    if [[ -d "${1}" ]]; then dirs+=("$1"); else return; fi
+    if [[ "${1}" == '/' ]]; then
+		for (( i ="${#dirs[@]}"; i > 0; i=i-1));do
+			echo ${dirs[$i]}
+		done
+        # for _dir in "${dirs[@]}"; do echo $_dir; done
+    else
+      get_parent_dirs $(dirname "$1")
+    fi
+  }
+  DIR=$(get_parent_dirs $(realpath "${1:-$PWD}") | fzf --reverse --height 50% --no-preview --no-border --tac)
+  cd "$DIR"
+
+  unset dirs
+}
+
+
+ff

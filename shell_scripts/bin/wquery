@@ -1,0 +1,18 @@
+#!/bin/bash 
+
+if [[ -n "$*" ]];then
+    query="$*"
+else
+    if [[ $XDG_SESSION_TYPE == "x11" && $(command -v rofi) =~ rofi ]];then
+    query="$( echo "" | rofi -config "${HOME}"/.config/rofi/config_input.rasi \
+                -dmenu -p "${0##*/}" -l 10 -i  <&-)"
+    elif [[ $XDG_SESSION_TYPE == "x11" && -f /usr/bin/dmenu ]];then
+    query="$( echo "" | dmenu -i -l 10 -fn "SourceCodePro bold 16" -nb "#242424" \
+                        -nf "#eeeeee" -sb "#538590" -sf "#000000" -p "Search: " <&-  )"
+    elif [[ $XDG_SESSION_TYPE == "wayland" && -f /usr/bin/wmenu ]];then
+    query="$( echo "" |  wmenu -i -l 10 -f "SourceCodePro bold 16" -N 242424 \
+                            -n eeeeee -S 128569 -s 000000 -p "Search: " <&- )"
+    fi
+fi
+
+[ -n "${query}" ] && firefox https://www.bing.com/search?q="${query}" &

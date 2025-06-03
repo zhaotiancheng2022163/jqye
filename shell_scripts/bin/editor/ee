@@ -1,0 +1,14 @@
+#!/bin/bash
+function ee()
+{
+    if [ "$TERM" = "linux" ]; then
+        # minimum linux console
+        emacs -nw "$@"
+    elif [ -x "$(command -v tmux)" ]; then
+        TERM=tmux-256color COLORTERM=24bit emacsclient -a '' -t "$@"
+    else
+        TERM=xterm-256color COLORTERM=24bit emacs -nw "$@"
+    fi
+}
+
+ee "$@"

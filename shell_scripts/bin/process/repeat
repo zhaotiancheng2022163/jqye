@@ -1,0 +1,12 @@
+#!/bin/bash
+function repeat()       # repeat n times command
+{
+    local i max
+    max=$1; shift;
+    for ((i=1; i <= max ; i++)); do  # --> C-like syntax
+        # eval "$@" || exit
+        "$@" || exit
+    done
+}
+
+repeat "$@"

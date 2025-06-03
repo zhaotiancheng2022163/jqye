@@ -1,0 +1,27 @@
+#!/bin/bash
+# 从视频文件中移除指定的时间段
+function vidrmseg() {
+    # Usage:
+    #   vidrmseg test.mp4 48 93 # remove video between sec 48 and sec 93
+    #   vidrmseg test.mp4 48 # remove video after 48
+    if [ -z "$1" ] || [ -z "$2" ]; then
+        echo "Usage: vidrmseg <input_video> <start_time> [end_time]"
+        return 1
+    fi
+
+    local f=${1%.*}
+    local ext=${1##*.}
+
+    if [ ! -f "$1" ]; then
+        echo "Error: File '$1' does not exist."
+        return 1
+    fi
+
+    if [ -z "$3" ]; then
+        ffmpeg -y -i "$1" -filter_complex "[0:v]trim=duration=${2}[a]" -map "[a]" "${f}.copy.${ext}"
+    else
+        ffmpeg -y -i "$1" -filter_complex "[0:v]trim=duration=${2}[a];[0:v]trim=start=${3},setpts=PTS-STARTPTS[b];[a][b]concat[c]" -map "[c]" "${f}.copy.${ext}"
+    fi
+}
+
+vidrmseg "$@"

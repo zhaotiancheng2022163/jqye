@@ -1,0 +1,15 @@
+#!/bin/bash
+# any file on this computer
+function aa {
+    if [ -z "$1" ]; then
+        local cli
+        cli=$(locate / | fzfnormal)
+    else
+        local cli
+        cli=$(locate "$1" | fzfnormal)
+    fi
+    echo "${cli}"
+    echo -n "${cli}" | pclip
+}
+
+aa "$@"

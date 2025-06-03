@@ -1,0 +1,8 @@
+#!/bin/bash
+function cuttail() # Cut last n lines in file, 10 by default.
+{
+    nlines=${2:-10}
+    sed -n -e :a -e "1,${nlines}!{P;N;D;};N;ba" "$1"
+}
+
+cuttail "$@"

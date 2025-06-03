@@ -1,0 +1,13 @@
+#!/bin/bash
+
+function bye () {
+    if [ "$OS_NAME" = "CYGWIN" ]; then
+        shutdown -t 3 -f -s
+    elif [ -n "$(command -v systemctl )" ];then
+         systemctl poweroff
+    else
+        sudo shutdown -h now
+    fi
+}
+
+bye

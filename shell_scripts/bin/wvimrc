@@ -1,0 +1,106 @@
+#!/bin/bash
+
+search_path=(
+             "$HOME/debian_setup"
+             "$HOME/Documents/note"
+             "$HOME/Documents/usenote"
+             "$HOME/Desktop/就业/jqye"
+             # "$HOME/.config"
+             # "$HOME/.local/bin"
+             # "$HOME/.bashrc"
+             # "$HOME/.profile"
+             # "$HOME/.Xresources"
+             # "$HOME/.gnupg/gpg.conf"
+             # "$HOME/.ssh/config"
+             # "$HOME/.Xauthority"
+
+             # "$HOME/.inputrc"
+             # "$HOME/.Xmodmap"
+             # "$HOME/.xsession"
+            )
+
+IFS="$(printf '\n\t')"
+
+search_file() {
+    fdfind -HL -tf -tl -E={.git,.idea,node_modules,build} \
+           -c never ".*" "${search_path[@]}"
+}
+
+filter_extension() {
+    rg -ve "\.(docx|pptx|doc|ppt|xlsx|xls|zip|jpg|jpeg|png|tar|rar|gz|zst)$"
+}
+
+rofi_select() {
+    rofi -config "${HOME}"/.config/rofi/config_dmenu.rasi  -dmenu \
+         -p "${0##*/}" -l 10 -i -multi-select -ballot-unselected-str ""
+}
+
+dmenu_select() {
+    dmenu -i -l 10 -p "${0##*/}" -fn "SourceCodePro bold 16" \
+          -nb "#242424" -nf "#eeeeee" -sb "#128569" -sf "#000000"
+}
+
+wmenu_select() {
+    wmenu -i -l 10 -f "SourceCodePro bold 16" \
+          -N 242424 -n eeeeee -S 128569 -s 000000
+}
+
+terminal_run() {
+    "${1}" -e bash -c "export COLORTERM=truecolor; emacsclient -a '' -t '$i'"
+}
+
+open_file(){
+    # don't open vim if none file selected
+    if (( "${#selected_file[@]}" > 0 ));then
+        terminal_name=""
+        if [[ $XDG_SESSION_TYPE == "x11" ]];then
+            if [[ -n $(/usr/bin/pgrep -x urxvtd) ]];then
+                terminal_name=urxvtc
+            elif [[ -f /usr/bin/alacritty ]];then
+                terminal_name=alacritty
+            else
+                terminal_name=x-terminal-emulator
+            fi
+
+        elif [[ $XDG_SESSION_TYPE == "wayland"  ]];then
+            if [[ -f /usr/bin/foot ]];then
+                terminal_name=foot
+            elif [[ -f /usr/bin/alacritty ]];then
+                terminal_name=alacritty
+            fi
+            # for i in "${selected_file[@]}";do
+            #     "${terminal_name}" -e nvim "$i"
+            # done
+
+        else
+            return
+        fi
+
+        for i in "${selected_file[@]}";do
+            terminal_run "${terminal_name}"
+        done
+    fi
+}
+
+main() {
+    if [ -n "$*" ];then
+       local selected_file
+       readarray -t selected_file < <(fdfind -H -tf -E={.git,.idea,node_modules,build} \
+                                              -c never "${@}" "${search_path[@]}" \
+                                           | filter_extension )
+    else
+        if [[ $XDG_SESSION_TYPE == "x11" && $(command -v rofi) =~ rofi ]];then
+            readarray -t selected_file < <(search_file | filter_extension | rofi_select )
+        elif [[ $XDG_SESSION_TYPE == "x11" && -f /usr/bin/dmenu ]];then
+            readarray -t selected_file < <(search_file | filter_extension | dmenu_select )
+        elif [[ $XDG_SESSION_TYPE == "wayland" && -f /usr/bin/wmenu ]];then
+            readarray -t selected_file < <(search_file | filter_extension | wmenu_select )
+        else
+            return
+        fi
+    fi
+
+    open_file
+}
+
+main "$@"

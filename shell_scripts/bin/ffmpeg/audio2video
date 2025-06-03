@@ -1,0 +1,14 @@
+#!/bin/bash
+
+function audio2video {
+    # Add audio to video using ffmpeg
+    # @see https://superuser.com/questions/590201/add-audio-to-video-using-ffmpeg
+    if [ -z "$1" ]; then
+        echo "Usage: audio2video 1.mp4"
+        return;
+    fi
+    ffmpeg -i "$1" -i "${1%%.*}".mp3 -c copy -map 0:v:0 -map 1:a:0 new-"$1"
+    mv new-"$1" "$1"
+}
+
+audio2video "$@"

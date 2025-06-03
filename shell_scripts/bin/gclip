@@ -1,0 +1,20 @@
+#!/bin/bash
+
+
+function gclip() {
+    if [ "$OS_NAME" = "CYGWIN" ]; then
+        cat /dev/clipboard
+    elif [ "$OS_NAME" = "Darwin" ]; then
+        pbpaste "${@}";
+    elif hash powershell.exe 2>/dev/null; then
+        powershell.exe -command Get-Clipboard
+    elif [ -x /usr/bin/xsel ]; then
+        xsel -ob "${@}";
+    elif [ -x /usr/bin/xclip ]; then
+        xclip -o "${@}";
+    else
+        echo "Neither xsel or xclip is installed!"
+    fi
+}
+
+gclip "$@"

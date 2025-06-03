@@ -1,0 +1,44 @@
+#!/bin/bash
+search_path=("$HOME/Videos/"
+            )
+
+
+search_file() {
+    fdfind -tf -c never ".*" "${search_path[@]}"
+}
+
+rofi_select() {
+    rofi -config "${HOME}"/.config/rofi/config_dmenu.rasi  -dmenu \
+         -p "Videos Play" -l 10 -i -multi-select -ballot-unselected-str ""
+}
+
+dmenu_select() {
+    dmenu -p "Videos Play:" -i -l 10  -fn "SourceCodePro bold 16" \
+          -nb "#242424" -nf "#eeeeee" -sb "#538590" -sf "#000000"
+}
+
+wmenu_select() {
+    wmenu -i -l 10 -f "SourceCodePro bold 16" -N 242424 \
+          -n eeeeee -S 128569 -s 000000
+}
+
+main() {
+    if [ -n "$*" ];then
+        readarray -t choice < <(fdfind -H -tf -E={.git,.idea,node_modules,build} \
+                                       -c never "${@}" "${search_path[@]}")
+    else
+        if [[ $XDG_SESSION_TYPE == "x11" && $(command -v rofi) =~ rofi ]];then
+            readarray -t choice < <( search_file  | rofi_select )
+        elif [[ $XDG_SESSION_TYPE == "x11" && -f /usr/bin/dmenu ]];then
+            readarray -t choice < <( search_file  | dmenu_select )
+        elif [[ $XDG_SESSION_TYPE == "wayland" && -f /usr/bin/wmenu ]];then
+            readarray -t choice < <( search_file  | wmenu_select )
+        fi
+    fi
+
+    if (( "${#choice}" > 0 ));then
+       smplayer "${choice[@]}"
+    fi
+}
+
+main "$@"

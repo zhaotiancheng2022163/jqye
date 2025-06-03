@@ -1,0 +1,7 @@
+ARGUMENT=$@
+OBJECT="${ARGUMENT##*/}"
+NAME="${OBJECT%.*}"
+
+while ! [[ -e $NAME ]];do
+	git clone --recursive  $ARGUMENT
+done

@@ -1,0 +1,13 @@
+#!/bin/bash
+
+function rbt() {
+    if [ "$OS_NAME" = "CYGWIN" ]; then
+        shutdown -t 3 -f -r
+    elif [ "$OS_NAME" = "Darwin" ]; then
+        sudo reboot
+    else
+        sudo reboot
+    fi
+}
+
+rbt

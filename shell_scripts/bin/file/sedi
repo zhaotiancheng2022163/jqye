@@ -1,0 +1,10 @@
+#!/bin/bash
+# usage `find -name '*.txt' | sedi matched replaced`
+function sedi() {
+    echo -n "Please enter filename: "
+    read -r cp;
+    echo "$cp" | xargs sed -i 's%'"$1"'%'"$2"'%g'
+    echo "replace $1 with $2 done!"
+}
+
+sedi "$@"

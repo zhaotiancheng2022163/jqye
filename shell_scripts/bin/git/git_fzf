@@ -1,0 +1,14 @@
+# git自定义脚本使用的函数, 决定是否可以多选
+# ============================== git ==============================
+
+git_fzf(){
+fzf --reverse --height 50% --no-preview --no-border \
+    --prompt '> ' \
+    --multi \
+    --bind 'ctrl-l:clear-query' \
+    --bind 'ctrl-a:transform:[[ ! $FZF_PROMPT =~ All ]] &&
+            echo "change-prompt(All> )+select-all" ||
+            echo "change-prompt(> )+deselect-all"'
+
+    # --multi --bind 'ctrl-a:select-all' --bind 'ctrl-d:deselect-all'
+}

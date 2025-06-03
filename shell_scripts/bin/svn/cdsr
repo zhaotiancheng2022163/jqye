@@ -1,0 +1,22 @@
+#!/bin/bash
+function cdsr()
+{
+    grandparent="."
+    cnt=0
+
+    while [ ! -d "$grandparent/.svn" ] && [ $cnt -lt 32 ] ; do
+        grandparent="$grandparent/.."
+        cnt=$[cnt + 1]
+    done
+
+    if [ ! -z "$grandparent" ]; then
+        cd $grandparent
+        if [ ${#PWD} -lt ${#HOME} ]; then
+            cd -
+        fi
+    else
+        echo "cannot find svn root diectory"
+    fi
+}
+
+cdsr

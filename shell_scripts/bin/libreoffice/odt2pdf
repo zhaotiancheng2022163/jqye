@@ -1,0 +1,10 @@
+#!/bin/bash
+function odt2pdf() {
+    if [ "$OS_NAME" = "Darwin" ]; then
+        /Applications/LibreOffice.app/Contents/MacOS/soffice --headless --convert-to doc "$@"
+    else
+        soffice --headless --convert-to pdf "$@"
+    fi
+}
+
+odt2pdf "$@"

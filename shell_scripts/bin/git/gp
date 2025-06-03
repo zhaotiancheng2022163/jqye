@@ -1,0 +1,35 @@
+#!/bin/bash
+
+# git push with fzf
+
+# ============================== git ==============================
+
+. ~/.local/bin/git_fzf
+
+#git push
+gp(){
+    # 接受位置参数
+    if [[ -n "$*" ]];then
+        git push "$*"  #有什么错git 来处理, 否则程序太过复杂
+        return
+    fi
+
+    name=$(git branch -r | fzf --height 20% --reverse --no-preview --no-border) 2>/dev/null
+
+    # 如果为空, 则什么都不做
+    if [[ -z "${name}" ]];then
+       echo "please choose a reasonable branch!"
+       return
+    fi
+
+    name=$(echo "${name}" | sed 's/\// /g')
+
+    # fzf选择, 可以一定程度上保证正确的名字.
+    # 先复制, 方便一些
+    echo -n "${name}" | xclip -sel clip
+
+    git push ${name}
+
+}
+
+gp "$@"

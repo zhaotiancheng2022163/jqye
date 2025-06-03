@@ -1,0 +1,12 @@
+#!/bin/bash
+# 从输入字符串中移除指定数量的前导斜杠
+function nosl(){
+  if [ -z "$1" ]; then
+    echo "Usage: echo /hello/world|nosl num"
+    echo "strip num leading slashes"
+  else
+    perl -pe "\$n=$1;while(\$n>0){ \$_=~ s/[^\\\\\\/]*[\\\\\\/]+//;\$n--; }"
+  fi
+}
+
+nosl "$@"

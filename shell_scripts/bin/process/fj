@@ -1,0 +1,99 @@
+#!/bin/bash
+
+# 用fzf无参数查看现有进程或直接传参查看
+
+# ============================== process ==============================
+
+. ~/.local/bin/process_fzf
+
+# 输出位置参数的简要进程信息
+# 没有做重复参数的筛选删除
+# 这脚本笨是笨了点, 用awk可能更好, 但暂时不去想
+print_head() {
+    # 进程总数
+    local sum
+    sum="$(ps -e | wc -l)"
+
+    # 输出 选择进程数/总进程数
+    printf "\e[0;34m%s/%s\e[0m" "$@" "${sum}"
+    echo -e "\e[1;34m  ------------------------------------\e[0m"
+
+    # 输出头信息
+    head_info="$(ps -eo pid,%cpu,%mem,stat,comm | awk 'NR==1')"
+    echo -e "\e[1;32m$head_info\e[0m"
+
+    unset sum
+    unset head_info
+}
+
+
+fj() {
+
+  if [[  -z "$*" ]];then
+
+    pre_process="$(process_fzf)"
+
+    # 没有选择就什么不输出
+    if [[ -z "${pre_process}" ]];then
+       unset pre_process
+       return
+    fi
+
+    readarray -t process < <( echo "${pre_process}" | awk '{print $5}')
+
+    # 输出头部信息
+    print_head "${#process[@]}"
+
+    # 输出进程信息
+    echo  "${pre_process[@]}"
+
+    # fzf匹配, 都是自己需要知道的, 所以拷贝进程名字
+    echo "${process[*]}" | xclip -sel clip
+
+    unset process
+    unset pre_process
+    return
+  fi
+
+  # 如果位置参数不为0, 那么不复制, 因为不是全
+  # 匹配, 会有垃圾信息, 更多是个试探性的看看
+  # 算了, 一起做了吧, 妈的, 洗数据真累啊
+  for i in "$@";do
+      # 去除rg本身
+      readarray -t process < <(ps -eo pid,%cpu,%mem,stat,comm |  rg "$i" | rg -v ".* rg$" | awk '{print $1}')
+  done
+
+  if(( 0 == ${#process[@]} ));then
+      unset xclip_arra
+      unset process
+      return
+  fi
+
+  # 输出头部信息
+  print_head "${#process[@]}"
+
+  for i in "$@";do
+      # 保证颜色输出的同时进行存储
+      # 去除rg本身的影响
+      readarray -t xclip_array < <(ps -eo pid,%cpu,%mem,stat,comm --sort=-%mem,-%cpu \
+                      | rg "$i" --color=always \
+                      | rg -v '.* \x1B\[[0-9]+m\x1B\[[0-9]+m\x1B\[[0-9]+mrg\x1B\[0m' \
+                      | tee /dev/tty | awk '{print $5}')
+      if (( "$#" > 1 ));then
+         echo -e "\e[1;34m ------------------------------------------\e[0m"
+      fi
+  done
+
+  # 去除颜色, 如果不知道是什么样的转义,用tee将数据输入到文件, 用cat -A查看,
+  # 用less查看明显一些. 注意, 颜色输出的时候可以用\033, 可以用\e, 但是过滤的
+  # 的时候必须使用16进制的ESC表示\x1B, 否则没有办法过滤.
+  # \x1B其实表示的是ESC的ASCII码27的十六进制0x1B在sed中的表示. 所以\x1B也可以写成
+  # \x1b. 因为代表的十六进制相同
+  echo "${xclip_array[@]}" | sed -E 's/\x1B\[[0-9]+m//g' | xclip -sel clip
+
+  unset xclip_array
+  unset process
+}
+
+
+fj "$@"

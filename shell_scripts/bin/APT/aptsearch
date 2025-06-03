@@ -1,0 +1,9 @@
+#!/bin/bash
+function aptsearch () {
+    apt-file search -F /usr/bin/"$*"
+    apt-file search -F /usr/sbin/"$*"
+    apt-file search -F /bin/"$*"
+    apt-file search -F /sbin/"$*"
+}
+
+aptsearch "$@"

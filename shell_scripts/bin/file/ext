@@ -1,0 +1,103 @@
+#!/bin/bash
+# Easy extact
+
+set -f
+
+file-mime-extract() {
+    case "$(file --dereference --brief --mime-type -- "$1")" in
+        # ePub, MOBI, FB2 (using Calibre)
+        application/epub+zip|application/x-mobipocket-ebook|application/x-fictionbook+xml)
+            unzip -n "${1}" -d "${directory}" ;;
+
+        application/x-7z-compressed)
+            7z x "${1}" -o"${directory}";;
+
+        application/x-rar)
+            unrar e "${1}" -d "${directory}";;
+
+        application/zip)
+            unzip -n "${1}" -d "${directory}";;
+
+        application/zstd)
+            rm -rf "${directory}"
+            zstd -d "${1}" ;;
+
+        application/x-tar)
+            tar xvf "${1}"  -C "${directory}";;
+
+        application/x-bzip2)
+            rm -rf "${directory}"
+            bunzip2 -k "${1}" ;;
+
+        application/x-gzip | application/gzip)
+             rm -rf "${directory}"
+             gunzip -d "${1}" ;;
+
+        application/x-xz)
+            tar xjvkf "${1}" -C "${directory}";;
+
+        application/vnd.debian.binary-package)
+            dpkg -X "${1}" "${directory}" ;;
+    esac
+}
+
+
+
+suffix-mime-extract() {
+    case "${1}" in
+        *.tar.bz|*.tar.bz2|*.tbz|*.tbz2) tar xjvkf "${1}" -C "${directory}";;
+        *.tar.gz|*.tgz) tar xzvkf "${1}" -C "${directory}";;
+        *.tar.xz|*.txz) tar xJvkf "${1}" -C "${directory}";;
+        *.tar.zst) tar --zstd -xvkf "${1}" -C "${directory}";;
+        *.tar) tar xvf "${1}"  -C "${directory}";;
+        *.zip) unzip -n "${1}" -d "${directory}";;
+        *.rar) unrar e "${1}" -d "${directory}";;
+        *.7z) 7z x "${1}" -o"${directory}";;
+        *.gz) rm -rf "${directory}"
+                gunzip -d "${1}" ;;
+        *.zst) rm -rf "${directory}"
+                zstd -d "${1}" ;;
+        *.bz2) rm -rf "${directory}"
+                bunzip2 -k "${1}" ;;
+        *.apk|*.epub|*.xpi|*.odt|*.war|*.jar)       unzip -n "${1}" -d "${directory}" ;;
+        *.Z)   rm -rf "${directory}"
+                uncompress -k "${1}" ;;
+        *.deb) dpkg -X "${1}" "${directory}" ;;
+        *.tar.br) brotli -d "${1}" -o "${1%.*}"
+                  tar xvf "${1%.*}"  -C "${directory}";;
+        *.br) rm -rf "${directory}"
+              brotli -d "${1}" ;;
+    esac
+}
+
+extract_function() {
+    suffix-mime-extract "${@}" && return 0
+    file-mime-extract "${@}" && return 0
+    echo "don't know how to extract '$1'..."
+}
+
+main() {
+
+    for i in "${@}";do
+        if ! [ -f "${i}" ] ; then
+            echo "'$i' is not a valid file!"
+            exit 1
+        fi
+
+        name="${i}"
+        directory="${name%%.*}"
+
+        if ! [  -e "${directory}" ];then
+            mkdir "${directory}"
+        else
+            echo "${directory} is already exist! " && exit 1
+        fi
+
+        # 也许可以使用parallel进行替代加快循环速度
+        # 目前不知道怎么做, wvim也许也可以这样
+        extract_function "${i}"
+    done
+}
+
+
+main "$@"

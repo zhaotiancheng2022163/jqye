@@ -1,0 +1,16 @@
+#!/bin/bash
+# smarter locate
+function baseoo() {
+    local s="$@"
+    local keyword=${s// /.*}
+    if [ "$OS_NAME" = "Darwin" ]; then
+        local file
+        file=$(locate -i "${keyword}" | fzfnormal)
+    else
+        local file
+        file=$(locate -i --regex "${keyword}" | fzfnormal)
+    fi
+    echo -n "$file"
+}
+
+baseoo "$@"
