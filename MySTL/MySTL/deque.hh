@@ -50,7 +50,7 @@ struct deque_default_size{
 };
 
 template<class Object, class Ref, class Ptr>
-struct deque_iterator : public std::iterator<std::random_access_iterator_tag, Object>{
+struct deque_iterator {
     using iterator_category = std::random_access_iterator_tag;
 
     using iterator = deque_iterator<Object, Object&, Object*>;
