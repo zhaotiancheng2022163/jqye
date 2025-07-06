@@ -14,7 +14,7 @@ set(MySTL_VERSION "${MySTL_VERSION_MAJOR}.${MySTL_VERSION_MINOR}.${MySTL_VERSION
 message(STATUS "The version of this project is: ${MySTL_VERSION}")
 
 # build type
-set(CMAKE_BUILD_TYPE debug)
+# set(CMAKE_BUILD_TYPE debug)
 
 message(STATUS "The cmake_cxx_flags is: ${CMAKE_CXX_FLAGS}")
 

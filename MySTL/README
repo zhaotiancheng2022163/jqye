@@ -6,3 +6,618 @@
 或者
 cmake -S . -B build
 cmake --build build  -j$(nproc)
+
+这是测试的结果:
+
+[===============================================================]
+[----------------- Run container test : vector -----------------]
+[-------------------------- API test ---------------------------]
+ After v1.assign(8, 8) :
+ v1 : 8 8 8 8 8 8 8 8
+ After v1.assign(a, a + 5) :
+ v1 : 1 2 3 4 5
+ After v1.emplace(v1.begin(), 0) :
+ v1 : 0 1 2 3 4 5
+ After v1.emplace_back(6) :
+ v1 : 0 1 2 3 4 5 6
+ After v1.push_back(6) :
+ v1 : 0 1 2 3 4 5 6 6
+ After v1.insert(v1.end(), 7) :
+ v1 : 0 1 2 3 4 5 6 6 7
+ After v1.insert(v1.begin() + 3, 2, 3) :
+ v1 : 0 1 2 3 3 3 4 5 6 6 7
+ After v1.insert(v1.begin(), a, a + 5) :
+ v1 : 1 2 3 4 5 0 1 2 3 3 3 4 5 6 6 7
+ After v1.insert(v1.begin(), v10.begin(), v10.end()) :
+ v1 : 1 2 3 4 5 6 7 8 9 1 2 3 4 5 0 1 2 3 3 3 4 5 6 6 7
+ After v1.erase(v1.begin(), v1.begin() + 9) :
+ v1 : 1 2 3 4 5 0 1 2 3 3 3 4 5 6 6 7
+ After v1.pop_back() :
+ v1 : 1 2 3 4 5 0 1 2 3 3 3 4 5 6 6
+ After v1.erase(v1.begin()) :
+ v1 : 2 3 4 5 0 1 2 3 3 3 4 5 6 6
+ After v1.erase(v1.begin(), v1.begin() + 2) :
+ v1 : 4 5 0 1 2 3 3 3 4 5 6 6
+ After v1.reverse() :
+ v1 : 6 6 5 4 3 3 3 2 1 0 5 4
+ After v1.swap(v4) :
+ v1 : 1 2 3 4 5
+ *v1.begin() : 1
+ *(v1.end() - 1) : 5
+ v1.front() : 1
+ v1.back() : 5
+ v1[0] : 1
+ v1.at(1) : 2
+ After change v1.data() :
+ v1 : 10 20 30 4 5
+ v1.empty() : false
+ v1.size() : 5
+ v1.max_size() : 4611686018427387903
+ v1.capacity() : 16
+ After v1.resize(10) :
+ v1 : 10 20 30 4 5 0 0 0 0 0
+ v1.size() : 10
+ v1.capacity() : 16
+ After v1.shrink_to_fit() :
+ v1 : 10 20 30 4 5 0 0 0 0 0
+ v1.size() : 10
+ v1.capacity() : 10
+ After v1.resize(6, 6) :
+ v1 : 10 20 30 4 5 0
+ v1.size() : 6
+ v1.capacity() : 10
+ After v1.shrink_to_fit() :
+ v1 : 10 20 30 4 5 0
+ v1.size() : 6
+ v1.capacity() : 6
+ After v1.clear() :
+ v1 :
+ v1.size() : 0
+ v1.capacity() : 6
+ After v1.reserve(5) :
+ v1 :
+ v1.size() : 0
+ v1.capacity() : 6
+ After v1.reserve(20) :
+ v1 :
+ v1.size() : 0
+ v1.capacity() : 20
+ After v1.shrink_to_fit() :
+ v1 :
+ v1.size() : 0
+ v1.capacity() : 0
+[ PASSED ]
+[--------------------- Performance Testing ---------------------]
+|---------------------|-------------|-------------|-------------|
+|      push_back      |    500000   |   5000000   |  50000000   |
+|         std         |     13ms    |    128ms    |   1237ms    |
+|        mystd        |     16ms    |    157ms    |   1482ms    |
+|---------------------|-------------|-------------|-------------|
+[ PASSED ]
+[----------------- End container test : vector -----------------]
+[===============================================================]
+[------------------ Run container test : list ------------------]
+[-------------------------- API test ---------------------------]
+ After l1.assign(8, 8) :
+ l1 : 8 8 8 8 8 8 8 8
+ After l1.assign(a, a + 5) :
+ l1 : 1 2 3 4 5
+ After l1.assign({ 1,2,3,4,5,6 }) :
+ l1 : 1 2 3 4 5 6
+ After l1.insert(l1.end(), 6) :
+ l1 : 1 2 3 4 5 6 6
+ After l1.insert(l1.end(), 2, 7) :
+ l1 : 1 2 3 4 5 6 6 7 7
+ After l1.insert(l1.begin(), a, a + 5) :
+ l1 : 1 2 3 4 5 1 2 3 4 5 6 6 7 7
+ After l1.push_back(2) :
+ l1 : 1 2 3 4 5 1 2 3 4 5 6 6 7 7 2
+ After l1.push_front(1) :
+ l1 : 1 1 2 3 4 5 1 2 3 4 5 6 6 7 7 2
+ After l1.emplace(l1.begin(),1) :
+ l1 : 1 1 1 2 3 4 5 1 2 3 4 5 6 6 7 7 2
+ After l1.emplace_front(0) :
+ l1 : 0 1 1 1 2 3 4 5 1 2 3 4 5 6 6 7 7 2
+ After l1.emplace_back(10) :
+ l1 : 0 1 1 1 2 3 4 5 1 2 3 4 5 6 6 7 7 2 10
+ l1.size() : 19
+ After l1.pop_front() :
+ l1 : 1 1 1 2 3 4 5 1 2 3 4 5 6 6 7 7 2 10
+ After l1.pop_back() :
+ l1 : 1 1 1 2 3 4 5 1 2 3 4 5 6 6 7 7 2
+ After l1.erase(l1.begin()) :
+ l1 : 1 1 2 3 4 5 1 2 3 4 5 6 6 7 7 2
+ After l1.erase(l1.begin(), l1.end()) :
+ l1 :
+ l1.size() : 0
+ After l1.resize(10) :
+ l1 : 0 0 0 0 0 0 0 0 0 0
+ After l1.resize(5, 1) :
+ l1 : 0 0 0 0 0
+ After l1.resize(8, 2) :
+ l1 : 0 0 0 0 0 2 2 2
+ l1.size() : 8
+ After l1.splice(l1.end(), l4) :
+ l1 : 0 0 0 0 0 2 2 2 1 2 3 4 5
+ After l1.splice(l1.begin(), l5, l5.begin()) :
+ l1 : 0 0 0 0 0 0 2 2 2 1 2 3 4 5
+ After l1.splice(l1.end(), l6, l6.begin(), ++l6.begin()) :
+ l1 : 0 0 0 0 0 0 2 2 2 1 2 3 4 5 0
+ l1.size() : 15
+ After l1.remove(0) :
+ l1 : 2 2 2 1 2 3 4 5
+ After l1.remove_if(is_odd) :
+ l1 : 2 2 2 2 4
+ l1.size() : 5
+ After l1.assign({ 9,5,3,3,7,1,3,2,2,0,10 }) :
+ l1 : 9 5 3 3 7 1 3 2 2 0 10
+ l1.size() : 11
+ After l1.sort() :
+ l1 : 0 1 2 2 3 3 3 5 7 9 10
+ After l1.unique() :
+ l1 : 0 1 2 3 5 7 9 10
+ After l1.unique([&](int a, int b) {return b == a + 1; }) :
+ l1 : 0 2 5 7 9
+ After l1.merge(l7) :
+ l1 : 0 1 2 2 3 4 5 5 6 7 7 8 9 9
+ After l1.sort(std::greater<int>()) :
+ l1 : 9 9 8 7 7 6 5 5 4 3 2 2 1 0
+ After l1.merge(l8, std::greater<int>()) :
+ l1 : 9 9 8 7 7 6 5 5 4 3 2 2 1 1 1 1 1 1 0
+ After l1.reverse() :
+ l1 : 0 1 1 1 1 1 1 2 2 3 4 5 5 6 7 7 8 9 9
+ After l1.clear() :
+ l1 :
+ After l1.swap(l9) :
+ l1 : 1 1 1 1 1
+ *l1.begin() : 1
+ l1.front() : 1
+ l1.back() : 1
+ l1.empty() : false
+ l1.size() : 5
+ l1.max_size() : 18446744073709551615
+[ PASSED ]
+[--------------------- Performance Testing ---------------------]
+|---------------------|-------------|-------------|-------------|
+|       insert        |    100000   |   1000000   |  10000000   |
+|         std         |      7ms    |     87ms    |    875ms    |
+|        mystd        |     67ms    |    177ms    |   2891ms    |
+|---------------------|-------------|-------------|-------------|
+|         sort        |     20000   |    200000   |   2000000   |
+|         std         |      6ms    |    102ms    |   1420ms    |
+|        mystd        |      8ms    |    131ms    |   2055ms    |
+|---------------------|-------------|-------------|-------------|
+[ PASSED ]
+[------------------ End container test : list ------------------]
+[===============================================================]
+[----------------- Run container test : deque ------------------]
+[-------------------------- API test ---------------------------]
+ After d1.assign(5, 1) :
+ d1 : 1 1 1 1 1
+ After d1.assign(8, 8) :
+ d1 : 8 8 8 8 8 8 8 8
+ After d1.assign(a, a + 5) :
+ d1 : 1 2 3 4 5
+ After d1.assign({ 1,2,3,4,5 }) :
+ d1 : 1 2 3 4 5
+ After d1.insert(d1.end(), 6) :
+ d1 : 1 2 3 4 5 6
+ After d1.insert(d1.end() - 1, 2, 7) :
+ d1 : 1 2 3 4 5 7 7 6
+ After d1.insert(d1.begin(), a, a + 5) :
+ d1 : 1 2 3 4 5 1 2 3 4 5 7 7 6
+ After d1.erase(d1.begin()) :
+ d1 : 2 3 4 5 1 2 3 4 5 7 7 6
+ After d1.erase(d1.begin(), d1.begin() + 4) :
+ d1 : 1 2 3 4 5 7 7 6
+ After d1.emplace_back(8) :
+ d1 : 1 2 3 4 5 7 7 6 8
+ After d1.emplace_front(8) :
+ d1 : 8 1 2 3 4 5 7 7 6 8
+ After d1.emplace(d1.begin() + 1, 9) :
+ d1 : 8 9 1 2 3 4 5 7 7 6 8
+ After d1.push_front(1) :
+ d1 : 1 8 9 1 2 3 4 5 7 7 6 8
+ After d1.push_back(2) :
+ d1 : 1 8 9 1 2 3 4 5 7 7 6 8 2
+ After d1.pop_back() :
+ d1 : 1 8 9 1 2 3 4 5 7 7 6 8
+ After d1.pop_front() :
+ d1 : 8 9 1 2 3 4 5 7 7 6 8
+ After d1.shrink_to_fit() :
+ d1 : 8 9 1 2 3 4 5 7 7 6 8
+ After d1.resize(5) :
+ d1 : 8 9 1 2 3
+ After d1.resize(8, 8) :
+ d1 : 8 9 1 2 3 8 8 8
+ After d1.clear() :
+ d1 :
+ After d1.shrink_to_fit() :
+ d1 :
+ After d1.swap(d4) :
+ d1 : 1 2 3 4 5
+ *(d1.begin()) : 1
+ *(d1.end() - 1) : 5
+ d1.front() : 1
+ d1.back() : 5
+ d1.at(1) : 2
+ d1[2] : 3
+ d1.empty() : false
+ d1.size() : 5
+ d1.max_size() : 18446744073709551615
+[ PASSED ]
+[--------------------- Performance Testing ---------------------]
+|---------------------|-------------|-------------|-------------|
+|     push_front      |    500000   |   5000000   |  50000000   |
+|         std         |     11ms    |    120ms    |   1232ms    |
+|        mystd        |     12ms    |    127ms    |   1275ms    |
+|---------------------|-------------|-------------|-------------|
+|     push_back       |    500000   |   5000000   |  50000000   |
+|         std         |     12ms    |    122ms    |   1206ms    |
+|        mystd        |     12ms    |    124ms    |   1249ms    |
+|---------------------|-------------|-------------|-------------|
+[ PASSED ]
+[----------------- End container test : deque ------------------]
+[===============================================================]
+[----------------- Run container test : queue ------------------]
+[-------------------------- API test ---------------------------]
+ After q1.push(1) :
+ q1 : 1
+ After q1.push(2) :
+ q1 : 1 2
+ After q1.push(3) :
+ q1 : 1 2 3
+ After q1.pop() :
+ q1 : 2 3
+ After q1.emplace(4) :
+ q1 : 2 3 4
+ After q1.emplace(5) :
+ q1 : 2 3 4 5
+ q1.empty() : false
+ q1.size() : 4
+ q1.front() : 2
+ q1.back() : 5
+ After q1.pop() :
+ q1 : 3 4 5
+ After q1.pop() :
+ q1 : 4 5
+ After q1.pop() :
+ q1 : 5
+ After q1.pop() :
+ q1 :
+ After q1.swap(q4) :
+ q1 : 1 2 3 4 5
+ After q1.clear() :
+ q1 :
+[ PASSED ]
+[--------------------- Performance Testing ---------------------]
+|---------------------|-------------|-------------|-------------|
+|         push        |    500000   |   5000000   |  50000000   |
+|         std         |     14ms    |    147ms    |   1464ms    |
+|        mystd        |     11ms    |    127ms    |   1226ms    |
+|---------------------|-------------|-------------|-------------|
+[ PASSED ]
+[----------------- End container test : queue ------------------]
+[===============================================================]
+[------------- Run container test : priority_queue -------------]
+[-------------------------- API test ---------------------------]
+ After p1.push(1) :
+ p1 : 1
+ After p1.push(5) :
+ p1 : 5 1
+ After p1.push(3) :
+ p1 : 5 3 1
+ After p1.pop() :
+ p1 : 3 1
+ After p1.emplace(7) :
+ p1 : 7 3 1
+ After p1.emplace(2) :
+ p1 : 7 3 2 1
+ After p1.emplace(8) :
+ p1 : 8 7 3 2 1
+ p1.empty() : false
+ p1.size() : 5
+ p1.top() : 8
+ After p1.pop() :
+ p1 : 7 3 2 1
+ After p1.pop() :
+ p1 : 3 2 1
+ After p1.pop() :
+ p1 : 2 1
+ After p1.pop() :
+ p1 : 1
+ After p1.pop() :
+ p1 :
+ After p1.swap(p4) :
+ p1 : 5 4 3 2 1
+ After p1.clear() :
+ p1 :
+[ PASSED ]
+[--------------------- Performance Testing ---------------------]
+|---------------------|-------------|-------------|-------------|
+|         push        |    500000   |   5000000   |  50000000   |
+|         std         |     66ms    |    659ms    |   6607ms    |
+|        mystd        |     35ms    |    348ms    |   3506ms    |
+|---------------------|-------------|-------------|-------------|
+[ PASSED ]
+[------------- End container test : priority_queue -------------]
+[===============================================================]
+[----------------- Run container test : stack ------------------]
+[-------------------------- API test ---------------------------]
+ After s1.push(1) :
+ s1 : 1
+ After s1.push(2) :
+ s1 : 2 1
+ After s1.push(3) :
+ s1 : 3 2 1
+ After s1.pop() :
+ s1 : 2 1
+ After s1.emplace(4) :
+ s1 : 4 2 1
+ After s1.emplace(5) :
+ s1 : 5 4 2 1
+ s1.empty() : false
+ s1.size() : 4
+ s1.top() : 5
+ After s1.pop() :
+ s1 : 4 2 1
+ After s1.pop() :
+ s1 : 2 1
+ After s1.pop() :
+ s1 : 1
+ After s1.pop() :
+ s1 :
+ After s1.swap(s4) :
+ s1 : 5 4 3 2 1
+ After s1.clear() :
+ s1 :
+[ PASSED ]
+[--------------------- Performance Testing ---------------------]
+|---------------------|-------------|-------------|-------------|
+|         push        |    500000   |   5000000   |  50000000   |
+|         std         |     15ms    |    148ms    |   1493ms    |
+|        mystd        |     14ms    |    148ms    |   1492ms    |
+|---------------------|-------------|-------------|-------------|
+[ PASSED ]
+[----------------- End container test : stack ------------------]
+[===============================================================]
+[-------------- Run container test : unordered_map -------------]
+[-------------------------- API test ---------------------------]
+ After um1.emplace(1, 1) :
+ um1 : <1,1>
+ After um1.insert(PAIR_U(2, 2)) :
+ um1 : <1,1> <2,2>
+ After um1.insert(um1.end(), PAIR_U(3, 3)) :
+ um1 : <1,1> <2,2> <3,3>
+ After um1.insert(v.begin(), v.end()) :
+ um1 : <1,1> <2,2> <3,3> <4,4> <5,5>
+ After um1.erase(um1.begin()) :
+ um1 : <2,2> <3,3> <4,4> <5,5>
+ After um1.erase(um1.begin(), um1.find(3)) :
+ um1 : <3,3> <4,4> <5,5>
+ After um1.erase(1) :
+ um1 : <3,3> <4,4> <5,5>
+ um1.empty() : false
+ um1.size() : 3
+ um1.bucket_count() : 101
+ um1.bucket(1) : 10
+ um1.bucket_size(um1.bucket(5)) : 1
+ After um1.clear() :
+ um1 :
+ After um1.swap(um7) :
+ um1 : <1,1> <2,2> <3,3> <4,4> <5,5>
+ *um1.begin() : <1,1>
+ um1.at(1) : 1
+ um1[1] : 1
+ um1.empty() : false
+ um1.size() : 5
+ um1.bucket_count() : 101
+ um1.bucket(1) : 10
+ um1.bucket_size(um1.bucket(1)) : 1
+ After um1.reserve(1000) :
+ um1 : <1,1> <2,2> <3,3> <4,4> <5,5>
+ um1.size() : 5
+ um1.bucket_count() : 1361
+ um1.bucket_size(10) : 1
+ um1.bucket_size(13) : 1
+ um1.bucket_size(16) : 1
+ um1.bucket_size(19) : 1
+ um1.bucket_size(22) : 1
+ After um1.rehash(150) :
+ um1 : <1,1> <2,2> <3,3> <4,4> <5,5>
+ um1.bucket_count() : 173
+ um1.count(1) : 1
+ *um1.find(3) : <3,3>
+ um1.load_factor() : 0.0289017
+ um1.max_load_factor() : 1
+ After um1.max_load_factor(1.5f) :
+ um1 : <1,1> <2,2> <3,3> <4,4> <5,5>
+ um1.max_load_factor() : 1.5
+[ PASSED ]
+[--------------------- Performance Testing ---------------------]
+|---------------------|-------------|-------------|-------------|
+|       emplace       |     20000   |    200000   |   2000000   |
+|         std         |      5ms    |     72ms    |   1045ms    |
+|        mystd        |      6ms    |     92ms    |   1011ms    |
+|---------------------|-------------|-------------|-------------|
+[ PASSED ]
+[-------------- End container test : unordered_map -------------]
+[===============================================================]
+[----------- Run container test : unordered_multimap -----------]
+[-------------------------- API test ---------------------------]
+ After um1.emplace(1, 1) :
+ um1 : <1,1>
+ After um1.insert(PAIR_U(2, 2)) :
+ um1 : <1,1> <2,2>
+ After um1.insert(um1.end(), PAIR_U(3, 3)) :
+ um1 : <1,1> <2,2> <3,3>
+ After um1.insert(v.begin(), v.end()) :
+ um1 : <1,1> <1,1> <2,2> <2,2> <3,3> <3,3> <4,4> <5,5>
+ After um1.erase(um1.begin()) :
+ um1 : <1,1> <2,2> <2,2> <3,3> <3,3> <4,4> <5,5>
+ After um1.erase(um1.begin(), um1.find(3)) :
+ um1 : <3,3> <3,3> <4,4> <5,5>
+ After um1.erase(1) :
+ um1 : <3,3> <3,3> <4,4> <5,5>
+ um1.empty() : false
+ um1.size() : 4
+ um1.bucket_count() : 101
+ um1.bucket(1) : 10
+ um1.bucket_size(um1.bucket(5)) : 1
+ After um1.clear() :
+ um1 :
+ After um1.swap(um7) :
+ um1 : <1,1> <2,2> <3,3> <4,4> <5,5>
+ *um1.begin() : <1,1>
+ um1.empty() : false
+ um1.size() : 5
+ um1.bucket_count() : 101
+ um1.bucket(1) : 10
+ um1.bucket_size(um1.bucket(1)) : 1
+ After um1.reserve(1000) :
+ um1 : <1,1> <2,2> <3,3> <4,4> <5,5>
+ um1.size() : 5
+ um1.bucket_count() : 1361
+ um1.bucket_size(10) : 1
+ um1.bucket_size(13) : 1
+ um1.bucket_size(16) : 1
+ um1.bucket_size(19) : 1
+ um1.bucket_size(22) : 1
+ After um1.rehash(150) :
+ um1 : <1,1> <2,2> <3,3> <4,4> <5,5>
+ um1.bucket_count() : 173
+ um1.count(1) : 1
+ *um1.find(3) : <3,3>
+ um1.load_factor() : 0.0289017
+ um1.max_load_factor() : 1
+ After um1.max_load_factor(1.5f) :
+ um1 : <1,1> <2,2> <3,3> <4,4> <5,5>
+ um1.max_load_factor() : 1.5
+[ PASSED ]
+[--------------------- Performance Testing ---------------------]
+|---------------------|-------------|-------------|-------------|
+|       emplace       |     20000   |    200000   |   2000000   |
+|         std         |      5ms    |     70ms    |   1055ms    |
+|        mystd        |      6ms    |     86ms    |   1075ms    |
+|---------------------|-------------|-------------|-------------|
+[ PASSED ]
+[----------- End container test : unordered_multimap -----------]
+[===============================================================]
+[-------------- Run container test : unordered_set -------------]
+[-------------------------- API test ---------------------------]
+ After us1.emplace(1) :
+ us1 : 1
+ After us1.emplace_hint(us1.end(), 2) :
+ us1 : 1 2
+ After us1.insert(5) :
+ us1 : 1 2 5
+ After us1.insert(us1.begin(), 5) :
+ us1 : 1 2 5
+ After us1.insert(a, a + 5) :
+ us1 : 1 2 3 4 5
+ After us1.erase(us1.begin()) :
+ us1 : 2 3 4 5
+ After us1.erase(us1.begin(), us1.find(3)) :
+ us1 : 3 4 5
+ After us1.erase(1) :
+ us1 : 3 4 5
+ us1.empty() : false
+ us1.size() : 3
+ us1.bucket_count() : 101
+ us1.bucket(1) : 10
+ us1.bucket_size(us1.bucket(5)) : 1
+ After us1.clear() :
+ us1 :
+ After us1.swap(us7) :
+ us1 : 1 2 3 4 5
+ *us1.begin() : 1
+ us1.empty() : false
+ us1.size() : 5
+ us1.bucket_count() : 101
+ After us1.reserve(1000) :
+ us1 : 1 2 3 4 5
+ us1.size() : 5
+ us1.bucket_count() : 1361
+ um1.bucket_size(10) : 1
+ um1.bucket_size(13) : 1
+ um1.bucket_size(16) : 1
+ um1.bucket_size(19) : 1
+ um1.bucket_size(22) : 1
+ After us1.rehash(150) :
+ us1 : 1 2 3 4 5
+ us1.bucket_count() : 173
+ us1.count(1) : 1
+ *us1.find(3) : 3
+ us1.load_factor() : 0.0289017
+ us1.max_load_factor() : 1
+ After us1.max_load_factor(1.5f) :
+ us1 : 1 2 3 4 5
+ us1.max_load_factor() : 1.5
+[ PASSED ]
+[--------------------- Performance Testing ---------------------]
+|---------------------|-------------|-------------|-------------|
+|       emplace       |    100000   |   1000000   |  10000000   |
+|         std         |     31ms    |    436ms    |   5127ms    |
+|        mystd        |    971ms    |    546ms    |   5359ms    |
+|---------------------|-------------|-------------|-------------|
+[ PASSED ]
+[-------------- End container test : unordered_set -------------]
+[===============================================================]
+[------------ Run container test : unordered_multiset ----------]
+[-------------------------- API test ---------------------------]
+ After us1.emplace(1) :
+ us1 : 1
+ After us1.insert(5) :
+ us1 : 1 5
+ After us1.insert(us1.begin(), 5) :
+ us1 : 1 5 5
+ After us1.insert(a, a + 5) :
+ us1 : 1 1 2 3 4 5 5 5
+ After us1.erase(us1.begin()) :
+ us1 : 1 2 3 4 5 5 5
+ After us1.erase(us1.begin(), us1.find(3)) :
+ us1 : 3 4 5 5 5
+ After us1.erase(1) :
+ us1 : 3 4 5 5 5
+ us1.empty() : false
+ us1.size() : 5
+ us1.bucket_count() : 101
+ us1.bucket(1) : 10
+ us1.bucket_size(us1.bucket(5)) : 3
+ After us1.clear() :
+ us1 :
+ After us1.swap(us7) :
+ us1 : 1 2 3 4 5
+ *us1.begin() : 1
+ us1.empty() : false
+ us1.size() : 5
+ us1.bucket_count() : 101
+ After us1.reserve(1000) :
+ us1 : 1 2 3 4 5
+ us1.size() : 5
+ us1.bucket_count() : 1361
+ us1.bucket_size(10) : 1
+ us1.bucket_size(13) : 1
+ us1.bucket_size(16) : 1
+ us1.bucket_size(19) : 1
+ us1.bucket_size(22) : 1
+ After us1.rehash(150) :
+ us1 : 1 2 3 4 5
+ us1.bucket_count() : 173
+ us1.count(1) : 1
+ *us1.find(3) : 3
+ us1.load_factor() : 0.0289017
+ us1.max_load_factor() : 1
+ After us1.max_load_factor(1.5f) :
+ us1 : 1 2 3 4 5
+ us1.max_load_factor() : 1.5
+[ PASSED ]
+[--------------------- Performance Testing ---------------------]
+|---------------------|-------------|-------------|-------------|
+|       emplace       |     20000   |    200000   |   2000000   |
+|         std         |      5ms    |     70ms    |   1020ms    |
+|        mystd        |      8ms    |     85ms    |    932ms    |
+|---------------------|-------------|-------------|-------------|
+[ PASSED ]
+[------------ End container test : unordered_multiset ----------]
+
