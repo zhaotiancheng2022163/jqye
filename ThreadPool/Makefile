@@ -1,13 +1,13 @@
 CC=g++
-target=ThreadPool
-src_main=./src/main.cc
+target=./bin/ThreadPool
+src_main=./main.cc
 
 src_lib=$(wildcard ./src/*.cc)
 sub_lib=$(patsubst %.cc, %.o, $(src_lib))
 target_lib=./lib/libThreadPool.a
 
 $(target): $(src_main) $(target_lib)
-	$(CC) $(src_main) -l ThreadPool -L lib -I include -o $(target)
+	$(CC) -I include $(src_main) -l ThreadPool -L lib -o $(target)
 
 $(target_lib): $(sub_lib)
 	mkdir -p lib
