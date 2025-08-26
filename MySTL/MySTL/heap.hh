@@ -139,7 +139,7 @@ void adjust_heap(Iter first, Distance holeIndex, Distance len, Object value,Comp
     Object tmp = std::move(*(first + holeIndex));
     Distance child;
 
-    for( ;left_child(holeIndex) < len; holeIndex = child ) {
+    for( ;left_child(holeIndex) < static_cast<size_t>(len); holeIndex = child ) {
         child = left_child(holeIndex);
 
         if( child != len - 1 && comp(*(first + child), *(first + child + 1)))

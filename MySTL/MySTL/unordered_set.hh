@@ -257,11 +257,11 @@ class unordered_set{
   public:
     friend bool operator==(const unordered_set& lhs, const unordered_set& rhs)
     {
-        return lhs.Hashtable.equal_range_multi(rhs.ht_);
+        return lhs.Hashtable.equal_range_multi(rhs.Hashtable);
     }
     friend bool operator!=(const unordered_set& lhs, const unordered_set& rhs)
     {
-        return !lhs.Hashtable.equal_range_multi(rhs.ht_);
+        return !lhs.Hashtable.equal_range_multi(rhs.Hashtable);
     }
 };
 

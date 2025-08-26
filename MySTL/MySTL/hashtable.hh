@@ -459,6 +459,9 @@ class hashtable{
     ~hashtable()
     {
         clear();
+        theBucketSize = 0;
+        theLoadFactor = 0;
+
     }
 
   public:
@@ -530,9 +533,10 @@ class hashtable{
     template <class ... Args>
     std::pair<iterator, bool> emplace_unique( Args&& ... args )
     {
-        auto np = create_node(std::forward<Args>(args)...);
+        node_ptr_type np = nullptr;
         try
         {
+            np = create_node(std::forward<Args>(args)...);
             if ((float)(theSize + 1) > (float)theBucketSize * max_load_factor())
                 rehash(theSize + 1);
         }
@@ -958,8 +962,8 @@ class hashtable{
         }
         else {
             if( static_cast<float>(theSize)/static_cast<float>(n) < max_load_factor() - 0.25f &&
-                static_cast<float>(theBucketSize)*0.75)
-                replace_bucket(n);
+                static_cast<float>(n) < static_cast<float>(theBucketSize)*0.75)
+                replace_bucket(n) ;
         }
     }
 
@@ -1016,24 +1020,30 @@ class hashtable{
     template<class ... Args >
     node_ptr_type create_node(Args&& ... args )
     {
-        node_ptr_type tmp = node_alloc.allocate(1);
+        node_ptr_type tmp = nullptr;
         try{
-            std::allocator_traits<std::allocator<Object>>::construct(data_alloc,&(tmp -> value),std::forward<Args>(args)... );
+            tmp = node_alloc.allocate(1);
+            // std::allocator_traits<std::allocator<hashtableNode>>::construct(node_alloc,&(tmp -> value),std::forward<Args>(args)... );
+            std::allocator_traits<std::allocator<hashtableNode>>::construct(node_alloc,std::addressof(tmp -> value),std::forward<Args>(args)... );
             tmp -> next = nullptr;
+            return tmp;
         }
         catch(...){
-            node_alloc.deallocate(tmp, sizeof(hashtableNode));
+            node_alloc.deallocate(tmp, 1);
             throw;
         }
 
-        return tmp;
     }
 
     void destroy_node(node_ptr_type node )
     {
-        std::allocator_traits<std::allocator<Object>>::destroy(data_alloc, &(node->value));
-        node_alloc.deallocate(node, sizeof(node));
-        node = nullptr;
+        if( node != nullptr ) {
+            std::allocator_traits<std::allocator<hashtableNode>>::destroy(node_alloc, std::addressof(node->value));
+            // node_alloc.deallocate(node, sizeof(hashtableNode));
+            node_alloc.deallocate(node, 1);
+            // node -> next = nullptr;
+            // node = nullptr;
+        }
     }
 
     size_t hash( const key_type& key, size_t n ) const
@@ -1081,8 +1091,10 @@ class hashtable{
         }
 
         for(; cur; cur = cur -> next ) {
-            if( is_equal( value_traits_type::get_key(cur -> value), value_traits_type::get_key(np -> value)))
+            if( is_equal( value_traits_type::get_key(cur -> value), value_traits_type::get_key(np -> value))){
+                destroy_node(np);
                 return std::make_pair( iterator(cur, this), false);
+            }
         }
 
         np -> next  = theBucket[ n ];
@@ -1119,6 +1131,7 @@ class hashtable{
     void replace_bucket(size_t bucket_count )
     {
         bucket_type bucket( bucket_count );
+
         if( theSize != 0 ) {
             for( size_t i = 0; i < theBucketSize; ++i ) {
                 for( auto first = theBucket[ i ]; first; first = first -> next ) {
@@ -1132,17 +1145,27 @@ class hashtable{
                             cur -> next  = tmp;
                             is_inserted = true;
                             break;
+
                         }
                     }
+
                     if( !is_inserted ){
                         tmp -> next = f;
                         bucket[ n ] = tmp;
                     }
                 }
             }
+            theBucket.swap( bucket );
+            theBucketSize = bucket_count;
+
+            for( auto i : bucket ) {
+                for( auto j = i; j ;  ) {
+                    auto tmp = j -> next;
+                    destroy_node(j);
+                    j = tmp;
+                }
+            }
         }
-        theBucket.swap( bucket );
-        theBucketSize = theBucket.size();
     }
 
     void erase_bucket(size_t n, node_ptr_type first, node_ptr_type last )
@@ -1192,6 +1215,7 @@ class hashtable{
             node.next = nullptr;
         }
         friend class hashtable<Object, hashFun, keyEqual>;
+
     };
 
     struct iterator {

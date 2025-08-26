@@ -1,14 +1,15 @@
-#!/bin/sh
+#!/bin/bash
 
-rm -rf build bin bbb TAGS
+rm -rf build bin bbb TAGS core*
 cmake -S . -B build
 echo
 echo
-cmake --build build  -j$(nproc)
+cmake --build build  -j"$(nproc)"
 
 echo
 
-read -p "run/gdb/xclip/no [r/g/x/n] "
+echo -n "run/gdb/xclip/no [r/g/x/n] "
+read -r
 case $REPLY in
 	r) ./bin/test
 		;;

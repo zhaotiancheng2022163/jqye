@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 2.8)
 
 project(MySTL)
 
-set(CMAKE_CXX_COMPILER clang++)
+# set(CMAKE_CXX_COMPILER clang++)
 add_compile_options(-g -Wall -O0) #  -O2)
 #add_definitions("-Wall -g")
 
@@ -15,6 +15,7 @@ message(STATUS "The version of this project is: ${MySTL_VERSION}")
 
 # build type
 # set(CMAKE_BUILD_TYPE debug)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -gdwarf-4")
 
 message(STATUS "The cmake_cxx_flags is: ${CMAKE_CXX_FLAGS}")
 

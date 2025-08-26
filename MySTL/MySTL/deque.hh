@@ -377,6 +377,17 @@ class deque{
     deque& operator=( deque&& rhs )
     {
         clear();
+        for( auto cur = map; cur < map + mapSize; cur ++ ){
+            if( *cur ){
+                alloc.deallocate(*cur, buffer_size);
+                *cur = nullptr;
+            }
+        }
+
+        mapAlloc.deallocate(map, mapSize);
+        map = nullptr;
+        mapSize = 0;
+
         theBegin    = std::move(rhs.theBegin);
         theEnd      = std::move(rhs.theEnd);
         map         = rhs.map;
@@ -397,10 +408,12 @@ class deque{
     {
         if( map != nullptr ) {
             clear();
-            for( auto cur = theBegin.node; cur < theEnd.node; ++cur )
-                alloc.deallocate(*cur, buffer_size);
-            *theBegin.node = nullptr;
-            *theEnd.node = nullptr;
+            for( auto cur = map; cur < map + mapSize; cur ++ ){
+                if( *cur ){
+                    alloc.deallocate(*cur, buffer_size);
+                    *cur = nullptr;  // Explicitly nullify after deallocation (optional but good practice)
+                }
+            }
             mapAlloc.deallocate(map, mapSize);
             map = nullptr;
             mapSize = 0;
@@ -461,10 +474,13 @@ class deque{
         const size_t len = size();
         if( newSize < len ){
             erase(theBegin+newSize, theEnd);
+            shrink_to_fit();
         }else{
             insert(theEnd,newSize - len, value);
         }
     }
+
+    // 移除未使用的容量
     void shrink_to_fit() noexcept
     {
         // 至少会留下头部缓冲区
@@ -558,6 +574,7 @@ class deque{
     {
         if( theBegin.cur != theBegin.first) {
             std::allocator_traits<std::allocator<Object>>::construct(alloc, theBegin.cur - 1,std::forward<Args>(args)...);
+            // --theBegin.cur;
             --theBegin;
         }else{
             require_capacity(1, true);
@@ -760,16 +777,16 @@ class deque{
             const size_t elemBefore = first - theBegin;
 
             if( elemBefore < ( size() - len ) / 2 ) {
-                std::copy_backward(theBegin, first, last);
                 auto newBegin = theBegin + len;
-                for( auto cur = theBegin.cur; cur < newBegin.cur; cur++ )
-                    std::allocator_traits<decltype(alloc)>::destroy(alloc, cur);
+                for( auto current = theBegin.cur; current < newBegin.cur; current++ )
+                    std::allocator_traits<decltype(alloc)>::destroy(alloc, current);
+                std::copy_backward(theBegin, first, last);
                 theBegin = newBegin;
             }else{
-                std::copy(last, theEnd, first);
                 auto newEnd = theEnd - len;
-                for( auto cur = newEnd.cur; cur < theEnd.cur; cur++ )
-                    std::allocator_traits<decltype(alloc)>::destroy(alloc, cur);
+                for( auto current = newEnd.cur; current < theEnd.cur; current++ )
+                    std::allocator_traits<decltype(alloc)>::destroy(alloc, current);
+                std::copy(last, theEnd, first);
 
                 theEnd = newEnd;
             }
@@ -777,10 +794,10 @@ class deque{
         }
     }
 
+    // 从容器擦除所有元素。此调用后 size() 返回零。
+    // 使任何指代所含元素的引用、指针和迭代器失效。 任何尾后迭代器也会失效。
     void clear() noexcept
     {
-        // clear 会保留头部的缓冲区
-        // 从容器擦除所有元素.此调用后 size() 返回零
         for( Object** cur = theBegin.node + 1; cur < theEnd.node; ++cur )
             for( size_t i = 0; i < buffer_size; i++)
                 std::allocator_traits<decltype(alloc)>::destroy(alloc, *cur+i);
@@ -826,15 +843,15 @@ class deque{
 
     void create_buffer(Object** start, Object** finish)
     {
-        Object** cur;
+        Object** cur = start;
         try{
-            for( cur = start; cur <= finish; cur++ ){
+            for( ; cur <= finish; ++cur ){
                 *cur = alloc.allocate(buffer_size);
             }
         }catch(...){
             // 如果抛出异常, 那么意味着分配错误, *cur可以不用管
             while( cur != start ) {
-                cur--;
+                --cur;
                 alloc.deallocate(*cur, buffer_size);
                 *cur = nullptr;
             }
@@ -845,8 +862,10 @@ class deque{
     void destroy_buffer(Object** start, Object** finish)
     {
         for( Object** cur = start; cur <= finish; cur++ ){
-            alloc.deallocate(*cur, buffer_size);
-            *cur = nullptr;
+            if(*cur){
+                alloc.deallocate(*cur, buffer_size);
+                *cur = nullptr;
+            }
         }
     }
 
@@ -854,10 +873,10 @@ class deque{
     {
         const size_t nNode = count / buffer_size + 1;
         mapSize = std::max(static_cast<size_t>(DEQUE_MAP_INIT_SIZE), nNode+2);
+        assert(mapSize >= nNode + 2);
         try{
             map = create_map(mapSize);
         } catch(...) {
-            mapAlloc.deallocate(map, mapSize);
             map = nullptr;
             mapSize = 0;
             throw;
@@ -870,6 +889,8 @@ class deque{
         // start指向第一个节点, finish指向最后一个节点
         Object** start = map + ( mapSize - nNode ) / 2;
         Object** finish = start + nNode - 1;
+        assert(start  >= map);
+        assert(finish <  map + mapSize);
 
         try{
             create_buffer(start, finish);

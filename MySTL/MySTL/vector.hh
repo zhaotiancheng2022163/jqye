@@ -142,6 +142,7 @@ class vector{
         if( theBegin != nullptr ) {
             destroy(theBegin, theEnd);
             // alloc.deallocate(_begin, (_cap - _begin));
+            alloc.deallocate(theBegin, (theCap - theBegin));
             theBegin = nullptr;
             theEnd   = nullptr;
             theCap   = nullptr;
@@ -231,8 +232,10 @@ class vector{
             try {
                 init(theSize, theSize);
                 unmove(oldBegin, oldEnd, theBegin);
-                // alloc.deallocate(oldBegin, theCap); //注意: 这里不能再释放内存
+                destroy(oldBegin, oldEnd);
+                alloc.deallocate(oldBegin, (oldCap - oldBegin));
             } catch (...) {
+
                 theBegin = oldBegin;
                 theEnd = oldEnd;
                 theCap = oldCap;
@@ -345,13 +348,14 @@ class vector{
         const size_t len = mystd::distance_u(first, last);
 
         if( cap < len ){
-            iterator tmp;
+            iterator tmp = nullptr;
 
             try{
                 tmp = alloc.allocate(len);
                 uncopy(first, last, tmp);
             }catch(...){
-                alloc.deallocate(tmp, len);
+                if( tmp )
+                    alloc.deallocate(tmp, len);
                 throw;
             }
 
@@ -469,7 +473,7 @@ class vector{
             const size_t siz = size();
             const size_t cap = capacity();
 
-            for(int i = 0; i < len; i++ ) {
+            for(size_t i = 0; i < len; i++ ) {
                 *(tmp1 + i) = std::move(*(theBegin + i));
             }
 
@@ -516,7 +520,11 @@ class vector{
 
 
     // SFINAE技术, 区分特定模板
-    template <class Iter, typename std::enable_if<!std::is_integral<Iter>::value>::type* = nullptr>
+    // C++11写法
+    // template <class Iter, typename std::enable_if<!std::is_integral<Iter>::value>::type* = nullptr>
+    // C++14写法
+    template <class Iter,
+          typename = std::enable_if_t<!std::is_integral<Iter>::value>>
     iterator insert(iterator pos, Iter first, Iter last)
     {
         assert(pos >= theBegin && pos <= theEnd && first <= last );
@@ -526,23 +534,24 @@ class vector{
 
         const size_t len = last - first;
 
-        if( theCap - theEnd >= len ){
+        if( static_cast<size_t>(theCap - theEnd) >= len ){
 
             iterator newEnd = theEnd + len;
             iterator tmp    = theEnd - 1;
-            iterator i      = nullptr;
+            iterator i      = newEnd - 1;
 
-            for( i = newEnd - 1; i > pos; i-- ) {
+            for( ; i >= pos && tmp >= theBegin;) {
                 *i = std::move(*tmp);
-                tmp--;
+                --tmp;
+                --i;
             }
 
-            for( Iter j = first;  j < last; j++ ) {
+            for( Iter j = last - 1;  j >= first; j-- ) {
                 *i = *j;
-                i++;
+                i--;
             }
             theEnd = newEnd;
-            return pos;
+            return i + 1;
         }else{
 
             iterator oldBegin = theBegin;
@@ -578,6 +587,7 @@ class vector{
             }
 
             theEnd = newBegin;
+            alloc.deallocate(oldBegin, (oldCap - oldBegin));
 
             return tmp;
         }
@@ -604,7 +614,7 @@ class vector{
                 --newEle;
             }
 
-            for( int j = 0; j < n; j++  ) {
+            for( size_t j = 0; j < n; j++  ) {
                 *(pos + j) = value;
             }
 
@@ -689,6 +699,7 @@ class vector{
             theEnd     = theBegin + size;
             theCap     = theBegin + cap;
         } catch (...) {
+            alloc.deallocate(theBegin,cap);
             theBegin = nullptr;
             theEnd   = nullptr;
             theCap   = nullptr;

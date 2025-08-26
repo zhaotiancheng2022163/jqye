@@ -20,7 +20,6 @@ class list{
     listNode* theNode; // 指向尾部元素较好, 符合迭代器开闭原则
     size_t theSize;
     std::allocator<listNode> node_alloc;
-    const size_t nodeSize = sizeof(listNode);
 
   public:
 
@@ -73,12 +72,14 @@ class list{
 
     list& operator=( list&& rhs )
     {
-        clear();
-        theNode = rhs.theNode;
-        theSize = rhs.theSize;
-        rhs.theNode = nullptr;
-        rhs.theSize = 0;
-
+        if( this != &rhs ){
+            clear();
+            node_alloc.deallocate(theNode, 1);
+            theNode = rhs.theNode;
+            theSize = rhs.theSize;
+            rhs.theNode = nullptr;
+            rhs.theSize = 0;
+        }
         return *this;
     }
 
@@ -93,7 +94,7 @@ class list{
     {
         if( theNode ) {
             clear();
-            node_alloc.deallocate(theNode, nodeSize);
+            node_alloc.deallocate(theNode, 1);
             theNode = nullptr;
         }
     }
@@ -117,7 +118,8 @@ class list{
 
     void clear()
     {
-        if( theSize ) {
+        // if( theSize ) {
+        if( theNode ) {
             listNode* tmp = theNode -> next;
             listNode* tmp1 = tmp;
 
@@ -128,7 +130,6 @@ class list{
             }
             theNode -> unlink();
             theSize = 0;
-
         }
     }
 
@@ -303,6 +304,7 @@ class list{
         list<Object> tmp(n, value);
         insert_nodes(pos.current, tmp.theNode->next, tmp.theNode->prev);
         tmp.theNode -> prev = tmp.theNode -> next = nullptr;
+        node_alloc.deallocate(tmp.theNode, 1);
         tmp.theNode = nullptr;
         tmp.theSize = 0;
 
@@ -346,7 +348,7 @@ class list{
             //一旦出现异常, 销毁所有的节点.
             if( theNode ) {
                 clear();
-                node_alloc.deallocate(theNode, nodeSize);
+                node_alloc.deallocate(theNode, 1);
                 theNode = nullptr;
             }
         }
@@ -630,12 +632,12 @@ class list{
     {
         listNode* tmp = nullptr;
         try{
-            tmp = node_alloc.allocate(nodeSize);
+            tmp = node_alloc.allocate(1);
             std::allocator_traits<std::allocator<listNode>>::construct(node_alloc, tmp, std::forward<Args>(args)...);
             tmp -> prev = nullptr;
             tmp -> next = nullptr;
         }catch(...){
-            node_alloc.deallocate(tmp, nodeSize);
+            node_alloc.deallocate(tmp, 1);
             tmp = nullptr;
             throw;
         }
@@ -646,13 +648,14 @@ class list{
     void destroy_node(listNode* ptr )
     {
         std::allocator_traits<std::allocator<listNode>>::destroy(node_alloc, ptr);
-        node_alloc.deallocate(ptr, nodeSize);
+        node_alloc.deallocate(ptr, 1);
+        ptr = nullptr;
     }
 
     // 用 n 个元素初始化容器
     void init(size_t n, const Object& value )
     {
-        theNode = node_alloc.allocate(nodeSize);
+        theNode = node_alloc.allocate(1);
         theNode -> unlink();
         theSize = n;
 
@@ -673,7 +676,7 @@ class list{
     template<typename Iter>
     void copy_init(Iter first, Iter last )
     {
-        theNode = node_alloc.allocate(nodeSize);
+        theNode = node_alloc.allocate(1);
         theNode -> unlink();
         size_t n = 0;
 

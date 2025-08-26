@@ -3,8 +3,9 @@
 *.so
 *.a
 *.lib
-core
+core*
 build
 MySTL/bin/
 ThreadPool/bin/
 TAGS
+main

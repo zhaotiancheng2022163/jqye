@@ -64,7 +64,7 @@ void unordered_set_test()
   FUN_AFTER(us1, us1.reserve(1000));
   FUN_VALUE(us1.size());
   FUN_VALUE(us1.bucket_count());
-  for( int i = 0; i < us1.bucket_count(); i++ ) {
+  for( size_t i = 0; i < us1.bucket_count(); i++ ) {
       if( 0 !=  us1.bucket_size(i) )
           std::cout << " um1.bucket_size(" << i << ")" << " : " << us1.bucket_size(i) << "\n";
   }
@@ -142,7 +142,7 @@ void unordered_multiset_test()
   FUN_AFTER(us1, us1.reserve(1000));
   FUN_VALUE(us1.size());
   FUN_VALUE(us1.bucket_count());
-  for( int i = 0; i < us1.bucket_count(); i++ ) {
+  for( size_t i = 0; i < us1.bucket_count(); i++ ) {
       if( 0 !=  us1.bucket_size(i) )
           std::cout << " us1.bucket_size(" << i << ")" << " : " << us1.bucket_size(i) << "\n";
   }

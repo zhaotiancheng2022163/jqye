@@ -96,7 +96,7 @@ void unordered_map_test()
   MAP_FUN_AFTER(um1, um1.reserve(1000));
   FUN_VALUE(um1.size());
   FUN_VALUE(um1.bucket_count());
-  for( int i = 0; i < um1.bucket_count(); i++ ) {
+  for( size_t i = 0; i < um1.bucket_count(); i++ ) {
       if( 0 !=  um1.bucket_size(i) )
           std::cout << " um1.bucket_size(" << i << ")" << " : " << um1.bucket_size(i) << "\n";
   }
@@ -179,7 +179,7 @@ void unordered_multimap_test()
   MAP_FUN_AFTER(um1, um1.reserve(1000));
   FUN_VALUE(um1.size());
   FUN_VALUE(um1.bucket_count());
-  for( int i = 0; i < um1.bucket_count(); i++ ) {
+  for( size_t i = 0; i < um1.bucket_count(); i++ ) {
       if( 0 !=  um1.bucket_size(i) )
           std::cout << " um1.bucket_size(" << i << ")" << " : " << um1.bucket_size(i) << "\n";
   }
