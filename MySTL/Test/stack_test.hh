@@ -46,7 +46,7 @@ void stack_test()
   std::cout << "[-------------------------- API test ---------------------------]" << std::endl;
   int a[] = { 1,2,3,4,5 };
   /* mystd::deque<int> d1(5); */
-  std::deque<int> d1(5);
+  mystd::deque<int> d1(5);
   mystd::stack<int> s1;
   mystd::stack<int> s2(5);
   mystd::stack<int> s3(5, 1);

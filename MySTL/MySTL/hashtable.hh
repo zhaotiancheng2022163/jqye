@@ -3,7 +3,7 @@
 
 #include <initializer_list>
 #include <memory>
-#include <vector>
+#include "vector.hh"
 #include <utility> // 包含 std::pair
 #include <cassert>
 #include <functional>
@@ -368,14 +368,14 @@ class hashtable{
     // using key_equal         = keyEqual;
 
     using node_ptr_type = hashtableNode*;
-    using bucket_type   = std::vector<node_ptr_type>;
+    using bucket_type   = mystd::vector<node_ptr_type>;
 
     std::allocator<Object>        data_alloc;
     std::allocator<hashtableNode> node_alloc;
 
   private:
     hashtableNode*               node_ptr;
-    std::vector<hashtableNode *> theBucket;  // 动态扩充更方便
+    mystd::vector<hashtableNode *> theBucket;  // 动态扩充更方便
     size_t                       theSize;
     size_t                       theBucketSize;
     float                        theLoadFactor;

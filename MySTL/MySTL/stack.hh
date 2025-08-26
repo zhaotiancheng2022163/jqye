@@ -1,12 +1,12 @@
 #ifndef STACK_HH
 #define STACK_HH
 
-#include <deque>
+#include "deque.hh"
 #include <initializer_list>
 
 
 namespace  mystd {
-template <class Object, class Container = std::deque<Object>>
+template <class Object, class Container = mystd::deque<Object>>
 class stack{
   private:
     Container con;

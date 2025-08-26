@@ -69,7 +69,7 @@ void queue_test()
   std::cout << "[----------------- Run container test : queue ------------------]" << std::endl;
   std::cout << "[-------------------------- API test ---------------------------]" << std::endl;
   int a[] = { 1,2,3,4,5 };
-  std::deque<int> d1(5);
+  mystd::deque<int> d1(5);
   mystd::queue<int> q1;
   mystd::queue<int> q2(5);
   mystd::queue<int> q3(5, 1);

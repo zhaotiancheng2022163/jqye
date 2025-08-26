@@ -1,14 +1,14 @@
 #ifndef QUEUE_HH
 #define QUEUE_HH
 
-#include <deque>
-#include <vector>
+#include "deque.hh"
+#include "vector.hh"
 #include "vector.hh"
 #include "heap.hh"
 
 namespace mystd{
 
-template<class Obejct, class Container = std::deque<Obejct>>
+template<class Obejct, class Container = mystd::deque<Obejct>>
 class queue{
   private:
     Container theCon;
