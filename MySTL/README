@@ -7,6 +7,9 @@
 cmake -S . -B build
 cmake --build build  -j$(nproc)
 
+test.sh 是检测内存安全的shell脚本.
+valgrind.log 是内存安全报告
+
 这是测试的结果:
 
 [===============================================================]

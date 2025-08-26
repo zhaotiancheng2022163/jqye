@@ -1,3 +1,15 @@
-这是一个通用型高性能线程池组件, 用于高并发任务调度, 支持泛型任务提交.
+这是一个通用型高性能线程池组件, 用于高并发任务调度, 支持泛型任务提交. 已经做过测试.
 
-构建程序请运行 bash build.sh
+构建项目
+. ./build.sh
+
+或者
+cmake -S . -B build
+cmake --build build  -j$(nproc)
+
+
+test.sh 是检测内存安全的脚本.
+valgrind.log 是内存安全报告
+
+
+
